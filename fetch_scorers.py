@@ -39,11 +39,14 @@ def _extract_goals(summary: dict) -> list[dict]:
     for ev in summary.get("keyEvents", []):
         ttext = (ev.get("type", {}) or {}).get("text", "") or ""
         tl = ttext.lower()
-        if "goal" not in tl:
+        # Count: "Goal", "Goal - Header", "Own Goal", "Penalty - Scored"
+        is_goal = "goal" in tl or ("penalty" in tl and "scored" in tl)
+        if not is_goal:
             continue
-        if "shootout" in tl:          # penalty-shootout kicks are not goals
+        # Exclude: shootout kicks, disallowed/overturned goals
+        if any(w in tl for w in ("shootout", "disallowed", "cancelled", "missed")):
             continue
-        kind = "og" if "own" in tl else ("pen" if "pen" in tl else "goal")
+        kind = "og" if "own" in tl else ("pen" if "penalty" in tl else "goal")
         participants = ev.get("participants", []) or []
         scorer = ""
         assist = ""

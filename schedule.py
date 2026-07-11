@@ -63,7 +63,7 @@ SCHEDULE: list[dict] = [
     # Sunday 14 June
     {"match_no": 9,  "date": "2026-06-14", "group": "E", "matchday": 1,
      "home": "Ivory Coast",  "away": "Ecuador",       "stadium": "Lincoln Financial Field", "city": "Philadelphia",
-     "home_score": 2, "away_score": 0},   # Ivory Coast 1–0 Ecuador
+     "home_score": 1, "away_score": 0},   # Ivory Coast 1–0 Ecuador
 
     {"match_no": 10, "date": "2026-06-14", "group": "E", "matchday": 1,
      "home": "Germany",      "away": "Curacao",       "stadium": "NRG Stadium",             "city": "Houston",
@@ -71,7 +71,7 @@ SCHEDULE: list[dict] = [
 
     {"match_no": 11, "date": "2026-06-14", "group": "F", "matchday": 1,
      "home": "Netherlands",  "away": "Japan",         "stadium": "AT&T Stadium",            "city": "Dallas",
-     "home_score": 2, "away_score": 1},   # Netherlands 2–2 Japan
+     "home_score": 2, "away_score": 2},   # Netherlands 2–2 Japan
 
     {"match_no": 12, "date": "2026-06-14", "group": "F", "matchday": 1,
      "home": "Sweden",       "away": "Tunisia",       "stadium": "Estadio BBVA Monterrey",  "city": "Monterrey",
@@ -97,11 +97,11 @@ SCHEDULE: list[dict] = [
     # Tuesday 16 June
     {"match_no": 17, "date": "2026-06-16", "group": "I", "matchday": 1,
      "home": "France",       "away": "Senegal",       "stadium": "MetLife Stadium",         "city": "New York/New Jersey",
-     "home_score": 3, "away_score": 2},  # France 3–1 Senegal
+     "home_score": 3, "away_score": 1},  # France 3–1 Senegal
 
     {"match_no": 18, "date": "2026-06-16", "group": "I", "matchday": 1,
      "home": "Iraq",         "away": "Norway",        "stadium": "Gillette Stadium",        "city": "Boston",
-     "home_score": 1, "away_score": 2},  # Iraq 1–4 Norway
+     "home_score": 1, "away_score": 4},  # Iraq 1–4 Norway
 
     {"match_no": 19, "date": "2026-06-16", "group": "J", "matchday": 1,
      "home": "Argentina",    "away": "Algeria",       "stadium": "Children's Mercy Park",   "city": "Kansas City",
@@ -122,7 +122,7 @@ SCHEDULE: list[dict] = [
 
     {"match_no": 23, "date": "2026-06-17", "group": "K", "matchday": 1,
      "home": "Portugal",     "away": "Congo DR",      "stadium": "NRG Stadium",             "city": "Houston",
-     "home_score": 2, "away_score": 1},
+     "home_score": 1, "away_score": 1},
 
     {"match_no": 24, "date": "2026-06-17", "group": "K", "matchday": 1,
      "home": "Uzbekistan",   "away": "Colombia",      "stadium": "Mexico City Stadium",     "city": "Mexico City",
@@ -154,11 +154,11 @@ SCHEDULE: list[dict] = [
 
     {"match_no": 30, "date": "2026-06-19", "group": "C", "matchday": 2,
      "home": "Scotland",     "away": "Morocco",       "stadium": "Gillette Stadium",        "city": "Boston",
-     "home_score": 1, "away_score": 1},
+     "home_score": 0, "away_score": 1},
 
     {"match_no": 31, "date": "2026-06-19", "group": "D", "matchday": 2,
      "home": "Turkey",       "away": "Paraguay",      "stadium": "Levi's Stadium",          "city": "San Francisco Bay Area",
-     "home_score": 1, "away_score": 1},
+     "home_score": 0, "away_score": 1},
 
     {"match_no": 32, "date": "2026-06-19", "group": "D", "matchday": 2,
      "home": "United States","away": "Australia",     "stadium": "Lumen Field",             "city": "Seattle",
@@ -175,11 +175,11 @@ SCHEDULE: list[dict] = [
 
     {"match_no": 35, "date": "2026-06-20", "group": "F", "matchday": 2,
      "home": "Netherlands",  "away": "Sweden",        "stadium": "NRG Stadium",             "city": "Houston",
-     "home_score": 3, "away_score": 0},
+     "home_score": 5, "away_score": 1},
 
     {"match_no": 36, "date": "2026-06-20", "group": "F", "matchday": 2,
      "home": "Tunisia",      "away": "Japan",         "stadium": "Estadio BBVA Monterrey",  "city": "Monterrey",
-     "home_score": 2, "away_score": 1},
+     "home_score": 0, "away_score": 4},
 
     # Sunday 21 June
     {"match_no": 37, "date": "2026-06-21", "group": "H", "matchday": 2,
@@ -230,7 +230,7 @@ SCHEDULE: list[dict] = [
 
     {"match_no": 48, "date": "2026-06-23", "group": "K", "matchday": 2,
      "home": "Colombia",     "away": "Congo DR",      "stadium": "Estadio Akron Guadalajara","city": "Guadalajara",
-     "home_score": 2, "away_score": 1},
+     "home_score": 1, "away_score": 0},
 
     # ══════════════════════ MATCHDAY 3 (simultaneous) ══════════════════════
 
@@ -270,7 +270,7 @@ SCHEDULE: list[dict] = [
 
     {"match_no": 57, "date": "2026-06-25", "group": "F", "matchday": 3,
      "home": "Japan",        "away": "Sweden",        "stadium": "AT&T Stadium",            "city": "Dallas",
-     "home_score": 3, "away_score": 0},
+     "home_score": 1, "away_score": 1},
 
     {"match_no": 58, "date": "2026-06-25", "group": "F", "matchday": 3,
      "home": "Tunisia",      "away": "Netherlands",   "stadium": "Children's Mercy Park",   "city": "Kansas City",
@@ -312,7 +312,7 @@ SCHEDULE: list[dict] = [
     # Saturday 27 June — Group J, K & L
     {"match_no": 67, "date": "2026-06-27", "group": "L", "matchday": 3,
      "home": "Panama",       "away": "England",       "stadium": "MetLife Stadium",         "city": "New York/New Jersey",
-     "home_score": 2, "away_score": 3},
+     "home_score": 0, "away_score": 2},
 
     {"match_no": 68, "date": "2026-06-27", "group": "L", "matchday": 3,
      "home": "Croatia",      "away": "Ghana",         "stadium": "Lincoln Financial Field", "city": "Philadelphia",

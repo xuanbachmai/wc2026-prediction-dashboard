@@ -181,6 +181,13 @@
     "away": "Switzerland",
     "goals": [
       {
+        "scorer": "Breel Embolo",
+        "assist": "",
+        "team": "Switzerland",
+        "clock": "17'",
+        "kind": "pen"
+      },
+      {
         "scorer": "Miro Muheim",
         "assist": "Homam Ahmed",
         "team": "Qatar",
@@ -230,6 +237,13 @@
         "team": "Germany",
         "clock": "38'",
         "kind": "goal"
+      },
+      {
+        "scorer": "Kai Havertz",
+        "assist": "",
+        "team": "Germany",
+        "clock": "45'+5'",
+        "kind": "pen"
       },
       {
         "scorer": "Jamal Musiala",
@@ -568,6 +582,13 @@
         "team": "Austria",
         "clock": "76'",
         "kind": "og"
+      },
+      {
+        "scorer": "Marko Arnautovic",
+        "assist": "",
+        "team": "Austria",
+        "clock": "90'+12'",
+        "kind": "pen"
       }
     ]
   },
@@ -592,6 +613,13 @@
     "home": "England",
     "away": "Croatia",
     "goals": [
+      {
+        "scorer": "Harry Kane",
+        "assist": "",
+        "team": "England",
+        "clock": "12'",
+        "kind": "pen"
+      },
       {
         "scorer": "Martin Baturina",
         "assist": "Petar Sucic",
@@ -699,6 +727,13 @@
         "team": "Czechia",
         "clock": "6'",
         "kind": "goal"
+      },
+      {
+        "scorer": "Teboho Mokoena",
+        "assist": "",
+        "team": "South Africa",
+        "clock": "83'",
+        "kind": "pen"
       }
     ]
   },
@@ -735,6 +770,13 @@
         "team": "Bosnia-Herzegovina",
         "clock": "90'+3'",
         "kind": "goal"
+      },
+      {
+        "scorer": "Granit Xhaka",
+        "assist": "",
+        "team": "Switzerland",
+        "clock": "90'+7'",
+        "kind": "pen"
       }
     ]
   },
@@ -1403,6 +1445,35 @@
       }
     ]
   },
+  "switzerland vs canada": {
+    "match_no": 51,
+    "date": "2026-06-24",
+    "home": "Switzerland",
+    "away": "Canada",
+    "goals": [
+      {
+        "scorer": "Rubén Vargas",
+        "assist": "Johan Manzambi",
+        "team": "Switzerland",
+        "clock": "46'",
+        "kind": "goal"
+      },
+      {
+        "scorer": "Johan Manzambi",
+        "assist": "Breel Embolo",
+        "team": "Switzerland",
+        "clock": "57'",
+        "kind": "goal"
+      },
+      {
+        "scorer": "Promise David",
+        "assist": "Nathan Saliba",
+        "team": "Canada",
+        "clock": "76'",
+        "kind": "goal"
+      }
+    ]
+  },
   "bosnia and herzegovina vs qatar": {
     "match_no": 52,
     "date": "2026-06-24",
@@ -1937,6 +2008,13 @@
         "kind": "goal"
       },
       {
+        "scorer": "Lautaro Martínez",
+        "assist": "",
+        "team": "Argentina",
+        "clock": "31'",
+        "kind": "pen"
+      },
+      {
         "scorer": "Mousa Al-Tamari",
         "assist": "Ehsan Haddad",
         "team": "Jordan",
@@ -1971,6 +2049,13 @@
         "team": "Uzbekistan",
         "clock": "10'",
         "kind": "goal"
+      },
+      {
+        "scorer": "Yoane Wissa",
+        "assist": "",
+        "team": "Congo DR",
+        "clock": "68'",
+        "kind": "pen"
       },
       {
         "scorer": "Fiston Mayele",
@@ -2156,6 +2241,35 @@
       }
     ]
   },
+  "england vs congo dr": {
+    "match_no": 80,
+    "date": "2026-07-01",
+    "home": "England",
+    "away": "Congo DR",
+    "goals": [
+      {
+        "scorer": "Brian Cipenga",
+        "assist": "Chancel Mbemba",
+        "team": "Congo DR",
+        "clock": "7'",
+        "kind": "goal"
+      },
+      {
+        "scorer": "Harry Kane",
+        "assist": "Anthony Gordon",
+        "team": "England",
+        "clock": "75'",
+        "kind": "goal"
+      },
+      {
+        "scorer": "Harry Kane",
+        "assist": "Anthony Gordon",
+        "team": "England",
+        "clock": "86'",
+        "kind": "goal"
+      }
+    ]
+  },
   "united states vs bosnia and herzegovina": {
     "match_no": 81,
     "date": "2026-07-01",
@@ -2211,6 +2325,13 @@
         "team": "Belgium",
         "clock": "89'",
         "kind": "goal"
+      },
+      {
+        "scorer": "Youri Tielemans",
+        "assist": "",
+        "team": "Belgium",
+        "clock": "120'+5'",
+        "kind": "pen"
       }
     ]
   },
@@ -2226,6 +2347,13 @@
         "team": "Croatia",
         "clock": "53'",
         "kind": "goal"
+      },
+      {
+        "scorer": "Cristiano Ronaldo",
+        "assist": "",
+        "team": "Portugal",
+        "clock": "68'",
+        "kind": "pen"
       },
       {
         "scorer": "Gonçalo Ramos",
@@ -2372,7 +2500,15 @@
     "date": "2026-07-04",
     "home": "Paraguay",
     "away": "France",
-    "goals": []
+    "goals": [
+      {
+        "scorer": "Kylian Mbappé",
+        "assist": "",
+        "team": "France",
+        "clock": "70'",
+        "kind": "pen"
+      }
+    ]
   },
   "canada vs morocco": {
     "match_no": 90,
@@ -2422,6 +2558,13 @@
         "team": "Norway",
         "clock": "90'",
         "kind": "goal"
+      },
+      {
+        "scorer": "Neymar",
+        "assist": "",
+        "team": "Brazil",
+        "clock": "90'+10'",
+        "kind": "pen"
       }
     ]
   },
@@ -2451,6 +2594,20 @@
         "team": "Mexico",
         "clock": "42'",
         "kind": "goal"
+      },
+      {
+        "scorer": "Harry Kane",
+        "assist": "",
+        "team": "England",
+        "clock": "60'",
+        "kind": "pen"
+      },
+      {
+        "scorer": "Raúl Jiménez",
+        "assist": "",
+        "team": "Mexico",
+        "clock": "69'",
+        "kind": "pen"
       }
     ]
   },

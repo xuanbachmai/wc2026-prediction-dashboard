@@ -890,6 +890,59 @@ def build_all_data(goals_model, outcome_model, elo, stats):
         actual_ko_schedule.append(entry)
     print(f"[dashboard]   Actual KO schedule: {len(actual_ko_schedule)} entries")
 
+    # ── Step 5b2: Project the ACTUAL bracket forward ─────────────────────────
+    # Played matches → real winner. Unplayed → model favourite. TBD slots
+    # resolve recursively from earlier projections. Eliminated teams can never
+    # appear in later rounds (unlike the pre-tournament simulation above).
+    proj_winner: dict[int, str] = {}
+    proj_loser:  dict[int, str] = {}
+    projected_final = {"home": None, "away": None}
+
+    def _resolve_slot(name: str):
+        if name.startswith("TBD ("):
+            token = name[5:-1]              # "W96" / "L101"
+            try:
+                src = int(token[1:])
+            except ValueError:
+                return None
+            return (proj_winner if token[0] == "W" else proj_loser).get(src)
+        return name
+
+    for m in sorted([x for x in SCHEDULE if x.get("group") in KO_ROUND_LABELS],
+                    key=lambda x: x["match_no"]):
+        home = _resolve_slot(m["home"])
+        away = _resolve_slot(m["away"])
+        if not home or not away:
+            continue
+        if m["match_no"] == 104:
+            projected_final = {"home": home, "away": away}
+        hs, as_ = m["home_score"], m["away_score"]
+        if hs is not None and as_ is not None and is_played(m):
+            hp, ap = m.get("home_pens"), m.get("away_pens")
+            if hs > as_:
+                w, l = home, away
+            elif as_ > hs:
+                w, l = away, home
+            elif hp is not None and ap is not None:
+                w, l = (home, away) if hp > ap else (away, home)
+            else:
+                continue
+        else:
+            _p = predict_enhanced(home, away, outcome_model, goals_model, learned_elo, stats,
+                                  factor_weights=online_factor_weights,
+                                  xg_bias_home=online_xg_bias_home,
+                                  xg_bias_away=online_xg_bias_away,
+                                  extra_draw_inflation=online_draw_inflation)
+            w = home if _p["p_home_win"] >= _p["p_away_win"] else away
+            l = away if w == home else home
+        proj_winner[m["match_no"]] = w
+        proj_loser[m["match_no"]]  = l
+
+    if proj_winner.get(104):
+        champion = proj_winner[104]
+    print(f"[dashboard]   Actual-bracket projection: final "
+          f"{projected_final['home']} vs {projected_final['away']} → champion {champion}")
+
     # ── Add played KO matches to accuracy tracking ───────────────────────────
     ko_accuracy_rows = []
     for entry in actual_ko_schedule:
@@ -1263,6 +1316,7 @@ def build_all_data(goals_model, outcome_model, elo, stats):
         "ko_matches":      ko_matches,
         "win_probs":       win_probs,
         "champion":        champion,
+        "projected_final": projected_final,
         "accuracy":        accuracy_summary,
         "method":          "deterministic",
         "corners":         corners_list,
@@ -2622,7 +2676,9 @@ document.addEventListener('keydown', e => { if (e.key==='Escape') closeMatchModa
 function renderOverview() {
   const wp     = DATA.win_probs;
   const champ  = DATA.champion;
-  const final2 = DATA.ko_matches.find(m => m.round === 'Final');
+  const final2 = DATA.projected_final && DATA.projected_final.home
+    ? { home_team: DATA.projected_final.home, away_team: DATA.projected_final.away }
+    : DATA.ko_matches.find(m => m.round === 'Final');
   const acc    = DATA.accuracy;
 
   const accCard = acc && acc.total_played ? `
@@ -2636,12 +2692,12 @@ function renderOverview() {
     <div class="ov-card">
       <div class="label">Predicted Champion</div>
       <div class="value" style="color:var(--gold)">${champ}</div>
-      <div class="sub">Deterministic bracket winner</div>
+      <div class="sub">Actual bracket + model picks for unplayed rounds</div>
     </div>
     <div class="ov-card">
       <div class="label">Predicted Final</div>
       <div class="value" style="font-size:18px">${final2 ? (final2.home_team + ' vs ' + final2.away_team) : '—'}</div>
-      <div class="sub">Model's most likely matchup — no randomness</div>
+      <div class="sub">Real results so far — model favourites onward</div>
     </div>
     <div class="ov-card">
       <div class="label">Matches Predicted</div>

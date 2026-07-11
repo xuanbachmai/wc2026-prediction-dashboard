@@ -186,6 +186,62 @@ def backfill_results() -> bool:
     return changed
 
 
+def verify_results() -> bool:
+    """Re-check ALL recorded results against ESPN and correct any drift
+    (the live watcher can record a score just before a late goal)."""
+    sys.path.insert(0, str(Path(__file__).parent))
+    import importlib
+    import schedule as sched_mod
+    importlib.reload(sched_mod)
+
+    played = [m for m in sched_mod.SCHEDULE if m["home_score"] is not None]
+
+    # ESPN buckets by US-Eastern date, which can differ from the schedule
+    # date — fetch every date ±1 day and match events against ALL played.
+    from datetime import timedelta
+    dates: set[str] = set()
+    for m in played:
+        d = datetime.strptime(m["date"], "%Y-%m-%d")
+        for off in (-1, 0):
+            dates.add((d + timedelta(days=off)).strftime("%Y-%m-%d"))
+
+    changed = False
+    seen_events: set[tuple] = set()
+    for date in sorted(dates):
+        try:
+            data = espn_get(f"{ESPN_SCORE}?dates={date.replace('-', '')}")
+        except Exception as e:
+            log(f"Verify fetch error {date}: {e}")
+            continue
+        for ev in data.get("events", []):
+            try:
+                home, away, hs, as_, hp, ap, state = _parse_event(ev)
+            except Exception:
+                continue
+            if state != "post" or (home, away) in seen_events:
+                continue
+            seen_events.add((home, away))
+            m = next((x for x in played
+                      if x["home"] == home and x["away"] == away), None)
+            if m is None:
+                continue
+            if (m["home_score"] != hs or m["away_score"] != as_
+                    or m.get("home_pens") != hp or m.get("away_pens") != ap):
+                old = f"{m['home_score']}–{m['away_score']}"
+                if patch_schedule(home, away, hs, as_, hp, ap):
+                    pens = f" (pens {hp}–{ap})" if hp is not None else ""
+                    log(f"🛠 Corrected: {home} vs {away}  {old} → {hs}–{as_}{pens}")
+                    changed = True
+        time.sleep(0.3)
+    if changed:
+        resolve_ko_placeholders()
+    else:
+        log("Verify: all recorded results match ESPN")
+    return changed
+
+
 if __name__ == "__main__":
-    if backfill_results():
+    changed = backfill_results()
+    changed = verify_results() or changed
+    if changed:
         print("CHANGED")
