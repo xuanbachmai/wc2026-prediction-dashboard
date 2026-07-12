@@ -2275,5 +2275,28 @@
     "away_yellows": 0,
     "source": "espn",
     "event_id": "760512"
+  },
+  "argentina vs switzerland": {
+    "home": "Argentina",
+    "away": "Switzerland",
+    "home_corners": 8,
+    "away_corners": 2,
+    "total": 10,
+    "home_poss": 59.1,
+    "away_poss": 40.9,
+    "home_shots": 22,
+    "away_shots": 11,
+    "home_shots_on": 7,
+    "away_shots_on": 5,
+    "home_crosses": 22,
+    "away_crosses": 19,
+    "home_passes": 692,
+    "away_passes": 474,
+    "home_fouls": 14,
+    "away_fouls": 18,
+    "home_yellows": 3,
+    "away_yellows": 1,
+    "source": "espn",
+    "event_id": "760513"
   }
 }
