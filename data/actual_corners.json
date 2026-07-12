@@ -2252,5 +2252,28 @@
     "away_yellows": 2,
     "source": "espn",
     "event_id": "760511"
+  },
+  "norway vs england": {
+    "home": "Norway",
+    "away": "England",
+    "home_corners": 7,
+    "away_corners": 4,
+    "total": 11,
+    "home_poss": 47.7,
+    "away_poss": 52.3,
+    "home_shots": 13,
+    "away_shots": 14,
+    "home_shots_on": 4,
+    "away_shots_on": 8,
+    "home_crosses": 19,
+    "away_crosses": 21,
+    "home_passes": 576,
+    "away_passes": 626,
+    "home_fouls": 10,
+    "away_fouls": 8,
+    "home_yellows": 1,
+    "away_yellows": 0,
+    "source": "espn",
+    "event_id": "760512"
   }
 }

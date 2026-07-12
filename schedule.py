@@ -424,7 +424,7 @@ SCHEDULE: list[dict] = [
     {"match_no": 98,  "date": "2026-07-10", "group": "QF", "matchday": None,
      "home": "Spain",       "away": "Belgium",   "stadium": "SoFi Stadium",            "city": "Los Angeles",  "home_score": 2, "away_score": 1},
     {"match_no": 99,  "date": "2026-07-11", "group": "QF", "matchday": None,
-     "home": "Norway",      "away": "England",   "stadium": "Hard Rock Stadium",       "city": "Miami",        "home_score": None, "away_score": None},
+     "home": "Norway",      "away": "England",   "stadium": "Hard Rock Stadium",       "city": "Miami",        "home_score": 1, "away_score": 2},
     {"match_no": 100, "date": "2026-07-11", "group": "QF", "matchday": None,
      "home": "Argentina",  "away": "Switzerland", "stadium": "Children's Mercy Park",   "city": "Kansas City",  "home_score": None, "away_score": None},
 
@@ -432,7 +432,7 @@ SCHEDULE: list[dict] = [
     {"match_no": 101, "date": "2026-07-14", "group": "SF", "matchday": None,
      "home": "France", "away": "Spain", "stadium": "AT&T Stadium",            "city": "Dallas",       "home_score": None, "away_score": None},
     {"match_no": 102, "date": "2026-07-15", "group": "SF", "matchday": None,
-     "home": "TBD (W99)", "away": "TBD (W100)","stadium": "Mercedes-Benz Stadium",   "city": "Atlanta",      "home_score": None, "away_score": None},
+     "home": "England", "away": "TBD (W100)","stadium": "Mercedes-Benz Stadium",   "city": "Atlanta",      "home_score": None, "away_score": None},
 
     # ══════════════════════ BRONZE FINAL ══════════════════════
     {"match_no": 103, "date": "2026-07-18", "group": "3rd", "matchday": None,
