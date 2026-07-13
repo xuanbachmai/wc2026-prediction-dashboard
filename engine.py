@@ -1108,6 +1108,117 @@ def build_all_data(goals_model, outcome_model, elo, stats):
           f"backtest {bt_hits}/{bt_picks} ({100*bt_hits/max(bt_picks,1):.1f}%), "
           f"{len(upcoming_picks)} upcoming matches with picks")
 
+    # ── Step 5d: Team profiles — squads, 2026 stats, scorers, WC history ─────
+    print("[dashboard] Step 5d — Building team profiles...")
+    from fetch_squads import fetch_all_squads
+    from fetch_team_stats import fetch_all_team_stats
+    import csv as _csv
+
+    squads_raw  = fetch_all_squads()
+    match_stats = fetch_all_team_stats()
+
+    # Assists tally from scorer events
+    assist_tally: dict[tuple, int] = {}
+    for v in scorers_raw.values():
+        for g in v["goals"]:
+            if g.get("assist") and g["kind"] != "og":
+                k = (g["assist"], _team_name(g["team"]))
+                assist_tally[k] = assist_tally.get(k, 0) + 1
+
+    # Aggregate 2026 tournament stats per team
+    def _f(v):
+        try:
+            return float(v)
+        except (TypeError, ValueError):
+            return 0.0
+
+    team_stats_2026: dict[str, dict] = {}
+    for key, ms in match_stats.items():
+        sched = next((x for x in SCHEDULE if x["match_no"] == ms["match_no"]), None)
+        if sched is None or sched["home_score"] is None:
+            continue
+        for side, opp in (("home", "away"), ("away", "home")):
+            team = ms[side]
+            st   = ms.get(f"{side}_stats", {})
+            agg  = team_stats_2026.setdefault(team, {
+                "p": 0, "w": 0, "d": 0, "l": 0, "gf": 0, "ga": 0,
+                "shots": 0, "sot": 0, "poss_sum": 0.0, "pass_pct_sum": 0.0,
+                "corners": 0, "fouls": 0, "yellows": 0, "reds": 0,
+                "offsides": 0, "saves": 0,
+            })
+            gf = sched[f"{side}_score"]; ga = sched[f"{opp}_score"]
+            agg["p"]  += 1
+            agg["gf"] += gf; agg["ga"] += ga
+            agg["w"]  += int(gf > ga); agg["d"] += int(gf == ga); agg["l"] += int(gf < ga)
+            agg["shots"]    += int(_f(st.get("totalShots")))
+            agg["sot"]      += int(_f(st.get("shotsOnTarget")))
+            agg["poss_sum"] += _f(st.get("possessionPct"))
+            agg["pass_pct_sum"] += _f(st.get("passPct"))
+            agg["corners"]  += int(_f(st.get("wonCorners")))
+            agg["fouls"]    += int(_f(st.get("foulsCommitted")))
+            agg["yellows"]  += int(_f(st.get("yellowCards")))
+            agg["reds"]     += int(_f(st.get("redCards")))
+            agg["offsides"] += int(_f(st.get("offsides")))
+            agg["saves"]    += int(_f(st.get("saves")))
+
+    # WC participation history from the historical results CSV
+    _hist_alias = {"Congo DR": "DR Congo", "Curacao": "Curaçao"}
+    wc_years: dict[str, set] = {}
+    try:
+        with open("data/results.csv") as _fh:
+            for r in _csv.DictReader(_fh):
+                if r["tournament"] != "FIFA World Cup":
+                    continue
+                yr = r["date"][:4]
+                for tname in (r["home_team"], r["away_team"]):
+                    wc_years.setdefault(tname, set()).add(yr)
+    except Exception as e:
+        print(f"[dashboard]   WC history error: {e}")
+
+    WC_TITLES = {"Brazil": 5, "Germany": 4, "Italy": 4, "Argentina": 3,
+                 "France": 2, "Uruguay": 2, "England": 1, "Spain": 1}
+
+    team_profiles: dict[str, dict] = {}
+    for team in [t for grp in WC_2026_GROUPS.values() for t in grp]:
+        sq = squads_raw.get(team, {})
+        players = sq.get("players", [])
+        ages    = [p["age"] for p in players if p.get("age")]
+        heights = [p["height_cm"] for p in players if p.get("height_cm")]
+        s = team_stats_2026.get(team, {})
+        p_ = max(s.get("p", 0), 1)
+        hist_name = _hist_alias.get(team, team)
+        years = sorted(wc_years.get(hist_name, set()))
+        team_profiles[team] = {
+            "coach":      sq.get("coach"),
+            "squad_size": len(players),
+            "avg_age":    round(sum(ages) / len(ages), 1) if ages else None,
+            "avg_height": round(sum(heights) / len(heights)) if heights else None,
+            "players":    players,
+            "stats": ({
+                "p": s.get("p", 0), "w": s.get("w", 0), "d": s.get("d", 0), "l": s.get("l", 0),
+                "gf": s.get("gf", 0), "ga": s.get("ga", 0),
+                "shots": s.get("shots", 0), "sot": s.get("sot", 0),
+                "poss": round(s.get("poss_sum", 0) / p_, 1),
+                "pass_pct": round(s.get("pass_pct_sum", 0) / p_ * 100, 1),
+                "corners": s.get("corners", 0), "fouls": s.get("fouls", 0),
+                "yellows": s.get("yellows", 0), "reds": s.get("reds", 0),
+                "offsides": s.get("offsides", 0), "saves": s.get("saves", 0),
+            } if s.get("p") else None),
+            "top_scorers": sorted(
+                [{"player": r["player"], "goals": r["goals"], "pens": r["pens"]}
+                 for r in player_tally.values() if r["team"] == team],
+                key=lambda x: -x["goals"])[:5],
+            "top_assists": sorted(
+                [{"player": pl, "assists": n}
+                 for (pl, tm), n in assist_tally.items() if tm == team],
+                key=lambda x: -x["assists"])[:5],
+            "wc_appearances": len(years) + (0 if "2026" in years else 1),  # incl. 2026
+            "wc_first":       years[0] if years else "2026",
+            "wc_titles":      WC_TITLES.get(team, 0),
+        }
+    print(f"[dashboard]   Team profiles built for {len(team_profiles)} teams "
+          f"({sum(1 for t in team_profiles.values() if t['players'])} with squads)")
+
     # ── Step 6: Team overview table (ELO + model-derived probabilities) ───────
     all_teams = [t for grp in WC_2026_GROUPS.values() for t in grp]
     # Build round-reach prob from deterministic bracket path
@@ -1312,6 +1423,7 @@ def build_all_data(goals_model, outcome_model, elo, stats):
         "win_probs":       win_probs,
         "champion":        champion,
         "projected_final": projected_final,
+        "team_profiles":   team_profiles,
         "accuracy":        accuracy_summary,
         "method":          "deterministic",
         "corners":         corners_list,
@@ -3295,7 +3407,98 @@ function selectTeam(name) {
         }).join('') || '<div style="color:var(--muted);font-size:13px">No matches found</div>'}
       </div>
     </div>
+
+    ${teamProfileSections(name)}
   `;
+}
+
+// ── Extended profile: squad, 2026 stats, scorers, World Cup history ─────────
+function teamProfileSections(name) {
+  const tp = (DATA.team_profiles || {})[name];
+  if (!tp) return '';
+  const s = tp.stats;
+
+  const statTile = (val, lbl) => `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 12px;text-align:center">
+      <div style="font-size:17px;font-weight:800;font-variant-numeric:tabular-nums">${val}</div>
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:2px">${lbl}</div>
+    </div>`;
+
+  const statsHtml = s ? `
+    <div class="tp-section-label" style="margin-top:22px">2026 Tournament Stats</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:8px">
+      ${statTile(`${s.w}-${s.d}-${s.l}`, `W-D-L · ${s.p} played`)}
+      ${statTile(`${s.gf} / ${s.ga}`, 'Goals for / against')}
+      ${statTile(s.shots, 'Shots')}
+      ${statTile(s.sot, 'On target')}
+      ${statTile(s.poss + '%', 'Avg possession')}
+      ${statTile(s.pass_pct + '%', 'Pass accuracy')}
+      ${statTile(s.corners, 'Corners')}
+      ${statTile(s.fouls, 'Fouls')}
+      ${statTile(`${s.yellows} 🟨 ${s.reds} 🟥`, 'Cards')}
+      ${statTile(s.offsides, 'Offsides')}
+      ${statTile(s.saves, 'Saves')}
+    </div>` : '';
+
+  const scorerList = (rows, valKey, icon) => rows.length ? rows.map((r, i) => `
+    <div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--surface);
+                border:1px solid var(--border);border-radius:8px;margin-bottom:5px">
+      <span style="color:var(--muted);font-size:11px;width:14px">${i+1}</span>
+      <span style="font-weight:600;font-size:13px">${r.player}</span>
+      <span style="margin-left:auto;font-weight:800;color:var(--gold)">${icon} ${r[valKey]}${r.pens ? ` <span style="font-size:10px;color:var(--muted)">(${r.pens} pen)</span>` : ''}</span>
+    </div>`).join('') : '<div style="color:var(--muted);font-size:12px">None yet</div>';
+
+  const scorersHtml = (tp.top_scorers.length || tp.top_assists.length) ? `
+    <div class="tp-section-label" style="margin-top:22px">Top Players — 2026</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <div>
+        <div style="font-size:11px;color:var(--muted);font-weight:700;margin-bottom:6px">⚽ GOALS</div>
+        ${scorerList(tp.top_scorers, 'goals', '⚽')}
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--muted);font-weight:700;margin-bottom:6px">🅰️ ASSISTS</div>
+        ${scorerList(tp.top_assists, 'assists', '🅰️')}
+      </div>
+    </div>` : '';
+
+  const POS_LABEL = {GK: 'Goalkeepers', DF: 'Defenders', MF: 'Midfielders', FW: 'Forwards'};
+  const byPos = {};
+  (tp.players || []).forEach(p => (byPos[p.pos] = byPos[p.pos] || []).push(p));
+  const squadHtml = tp.players && tp.players.length ? `
+    <div class="tp-section-label" style="margin-top:22px">Squad
+      <span style="font-weight:400;color:var(--muted);font-size:11px;margin-left:8px">
+        ${tp.squad_size} players · avg age ${tp.avg_age ?? '—'} · avg height ${tp.avg_height ?? '—'} cm
+        ${tp.coach ? ` · coach <b style="color:var(--text)">${tp.coach}</b>` : ''}
+      </span>
+    </div>
+    ${['GK','DF','MF','FW'].filter(g => byPos[g]).map(g => `
+      <div style="font-size:11px;color:var(--accent);font-weight:700;text-transform:uppercase;
+                  letter-spacing:.05em;margin:12px 0 6px">${POS_LABEL[g]}</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:6px">
+        ${byPos[g].sort((a,b)=>(+a.jersey||99)-(+b.jersey||99)).map(p => `
+          <div style="display:flex;align-items:center;gap:9px;background:var(--surface);
+                      border:1px solid var(--border);border-radius:8px;padding:7px 11px">
+            <span style="width:24px;height:24px;border-radius:6px;background:var(--surface2);
+                         display:inline-flex;align-items:center;justify-content:center;
+                         font-size:11px;font-weight:700;color:var(--accent)">${p.jersey ?? '–'}</span>
+            <div style="min-width:0">
+              <div style="font-weight:600;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div>
+              <div style="font-size:10.5px;color:var(--muted)">
+                ${p.age ? p.age + ' yrs' : ''}${p.height_cm ? ` · ${p.height_cm} cm` : ''}${p.weight_kg ? ` · ${p.weight_kg} kg` : ''}
+              </div>
+            </div>
+          </div>`).join('')}
+      </div>`).join('')}` : '';
+
+  const histHtml = `
+    <div class="tp-section-label" style="margin-top:22px">World Cup History</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      ${statTile(tp.wc_appearances, 'WC appearances')}
+      ${statTile(tp.wc_first, 'First appearance')}
+      ${tp.wc_titles ? statTile('🏆'.repeat(Math.min(tp.wc_titles,5)), `${tp.wc_titles} World Cup title${tp.wc_titles>1?'s':''}`) : ''}
+    </div>`;
+
+  return statsHtml + scorersHtml + squadHtml + histHtml;
 }
 
 // ── Accuracy Tracker ───────────────────────────────────────────────────────
