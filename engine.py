@@ -1342,36 +1342,76 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WC 2026 — AI Prediction Dashboard</title>
+<meta name="description" content="Self-learning AI model predicting every 2026 World Cup match — retrains after every result. Random forest + Poisson xG, loop-learned ELO, live ESPN data.">
+<title>World Cup 2026 — AI Prediction Engine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0f172a; --surface: #1e293b; --surface2: #273548;
-    --border: #334155; --text: #e2e8f0; --muted: #94a3b8;
+    --bg: #0b1120; --surface: #131c31; --surface2: #1b2740;
+    --border: #263351; --text: #e5eaf3; --muted: #8b9bb4;
     --home: #3b82f6; --away: #f97316; --draw: #6b7280;
     --green: #22c55e; --yellow: #eab308; --red: #ef4444;
-    --gold: #f59e0b; --purple: #a855f7;
-    --radius: 10px;
+    --gold: #f59e0b; --purple: #a855f7; --accent: #60a5fa;
+    --radius: 12px;
+    --shadow: 0 1px 2px rgba(0,0,0,.25), 0 6px 24px rgba(0,0,0,.22);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 14px; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text);
+         font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+         font-size: 14px; line-height: 1.5;
+         -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  ::selection { background: #2563eb66; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 6px; }
+  ::-webkit-scrollbar-thumb:hover { background: #35507e; }
+  button { font-family: inherit; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 
-  /* ── Header ── */
-  header { background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 60%);
-           border-bottom: 1px solid var(--border); padding: 20px 24px; }
-  header h1 { font-size: 24px; font-weight: 700; color: #fff;
-              display: flex; align-items: center; gap: 10px; }
-  header .sub { color: var(--muted); font-size: 13px; margin-top: 4px; }
-  header .badge { background: var(--gold); color: #000; border-radius: 4px;
-                  padding: 2px 8px; font-size: 11px; font-weight: 700; }
+  /* ── Header / hero ── */
+  header { background:
+             radial-gradient(1000px 340px at 12% -40%, rgba(37,99,235,.28), transparent 60%),
+             radial-gradient(800px 300px at 88% -50%, rgba(168,85,247,.14), transparent 55%),
+             linear-gradient(180deg, #0e1729 0%, var(--bg) 100%);
+           border-bottom: 1px solid var(--border); padding: 26px 24px 20px; }
+  .hero-wrap { max-width: 1400px; margin: 0 auto; }
+  header h1 { font-size: 26px; font-weight: 800; letter-spacing: -.02em; color: #fff;
+              display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  header .sub { color: var(--muted); font-size: 13.5px; margin-top: 6px; max-width: 720px; }
+  header .badge { background: rgba(34,197,94,.14); color: #4ade80; border: 1px solid rgba(34,197,94,.4);
+                  border-radius: 999px; padding: 3px 12px 3px 9px; font-size: 11px; font-weight: 700;
+                  display: inline-flex; align-items: center; gap: 6px; letter-spacing: .04em; }
+  .live-dot { width: 7px; height: 7px; border-radius: 50%; background: #22c55e;
+              animation: pulse 1.6s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34,197,94,.5); }
+                     50% { opacity: .7; box-shadow: 0 0 0 5px rgba(34,197,94,0); } }
+  .hero-stats { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+  .hero-chip { background: rgba(19,28,49,.75); border: 1px solid var(--border);
+               border-radius: 10px; padding: 8px 14px; backdrop-filter: blur(4px); }
+  .hero-chip .hc-val { font-size: 17px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .hero-chip .hc-lbl { font-size: 10.5px; color: var(--muted); text-transform: uppercase;
+                       letter-spacing: .06em; margin-top: 1px; }
+  .hdr-btn { background: rgba(19,28,49,.75); border: 1px solid var(--border); color: var(--text);
+             border-radius: 10px; padding: 7px 14px; font-size: 12.5px; font-weight: 600;
+             cursor: pointer; white-space: nowrap; transition: all .18s;
+             display: inline-flex; align-items: center; gap: 7px; text-decoration: none; }
+  .hdr-btn:hover { border-color: var(--accent); color: #fff; transform: translateY(-1px); }
 
   /* ── Nav tabs ── */
-  nav { background: var(--surface); border-bottom: 1px solid var(--border);
-        display: flex; gap: 2px; padding: 0 16px; overflow-x: auto; }
-  nav button { background: none; border: none; color: var(--muted); cursor: pointer;
-               padding: 14px 18px; font-size: 13px; font-weight: 500; white-space: nowrap;
-               border-bottom: 2px solid transparent; transition: all .2s; }
-  nav button:hover { color: var(--text); }
-  nav button.active { color: #60a5fa; border-bottom-color: #60a5fa; }
+  nav { background: rgba(11,17,32,.86); backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--border); display: flex; gap: 4px;
+        padding: 8px 16px; overflow-x: auto; position: sticky; top: 0; z-index: 90;
+        scrollbar-width: none; }
+  nav::-webkit-scrollbar { display: none; }
+  nav button { background: none; border: 1px solid transparent; color: var(--muted); cursor: pointer;
+               padding: 8px 15px; font-size: 13px; font-weight: 600; white-space: nowrap;
+               border-radius: 999px; transition: all .18s; }
+  nav button:hover { color: var(--text); background: var(--surface); }
+  nav button.active { color: #fff; background: linear-gradient(135deg, #2563eb, #1d4ed8);
+                      border-color: #3b82f6; box-shadow: 0 2px 12px rgba(37,99,235,.35); }
 
   /* ── Layout ── */
   main { padding: 20px; max-width: 1400px; margin: 0 auto; }
@@ -1379,7 +1419,8 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 
   /* ── Cards ── */
   .card { background: var(--surface); border: 1px solid var(--border);
-          border-radius: var(--radius); padding: 16px; margin-bottom: 12px; }
+          border-radius: var(--radius); padding: 16px; margin-bottom: 12px;
+          box-shadow: var(--shadow); }
   .card-header { display: flex; justify-content: space-between; align-items: center;
                  margin-bottom: 12px; }
   .card-title { font-weight: 600; font-size: 14px; }
@@ -1971,37 +2012,78 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   ::-webkit-scrollbar-track { background: var(--bg); }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
+  /* ── Footer ── */
+  footer { border-top: 1px solid var(--border); margin-top: 48px;
+           padding: 28px 24px 36px; background: linear-gradient(180deg, var(--bg), #0d1526); }
+  .foot-wrap { max-width: 1400px; margin: 0 auto; display: flex;
+               justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap; }
+  .foot-title { font-weight: 700; font-size: 14px; margin-bottom: 6px; }
+  .foot-sub { color: var(--muted); font-size: 12.5px; max-width: 520px; line-height: 1.6; }
+  .tech-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+  .tech-chip { background: var(--surface); border: 1px solid var(--border); color: var(--muted);
+               border-radius: 999px; padding: 3px 11px; font-size: 11px; font-weight: 600; }
+
+  /* ── About modal ── */
+  #about-overlay { display: none; position: fixed; inset: 0; background: rgba(4,8,18,.72);
+                   backdrop-filter: blur(6px); z-index: 200; overflow-y: auto; padding: 5vh 16px; }
+  #about-overlay.open { display: block; }
+  #about-modal { max-width: 680px; margin: 0 auto; background: var(--surface);
+                 border: 1px solid var(--border); border-radius: 16px; padding: 28px;
+                 box-shadow: 0 24px 80px rgba(0,0,0,.5); }
+  #about-modal h2 { font-size: 20px; font-weight: 800; letter-spacing: -.01em; margin-bottom: 4px; }
+  #about-modal h3 { font-size: 13px; font-weight: 700; color: var(--accent);
+                    text-transform: uppercase; letter-spacing: .07em; margin: 20px 0 8px; }
+  #about-modal p, #about-modal li { color: #c4cede; font-size: 13.5px; line-height: 1.65; }
+  #about-modal ul { padding-left: 20px; }
+  #about-modal code { background: var(--surface2); border: 1px solid var(--border);
+                      padding: 1px 6px; border-radius: 5px; font-size: 12px; }
+
   /* ── Responsive ── */
   @media(max-width:640px) {
     .scout-row { grid-template-columns: 1fr; }
     .stat-grid { font-size: 11px; }
     .matchday-row { grid-template-columns: 1fr; }
+    header { padding: 20px 16px 16px; }
+    header h1 { font-size: 20px; }
+    header .sub { font-size: 12px; }
+    .hero-side { display: none; }
+    .hero-stats { gap: 7px; }
+    .hero-chip { padding: 6px 11px; }
+    .hero-chip .hc-val { font-size: 14px; }
+    main { padding: 14px 12px; }
   }
 </style>
 </head>
 <body>
 
 <header>
-  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px">
-    <div>
-      <h1>⚽ WC 2026 AI Prediction Dashboard <span class="badge">LIVE</span></h1>
-      <div class="sub">Official FIFA Schedule &nbsp;·&nbsp; XGBoost + Poisson + Loop-learned ELO + Player/Coach/Counter/Political factors &nbsp;·&nbsp; News sentiment &nbsp;·&nbsp; 48 teams · 104 matches</div>
-    </div>
-    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
-      <div id="utc7-clock" style="text-align:right;color:#cbd5e1;font-size:13px;min-width:160px">
-        <div style="font-size:11px;color:#94a3b8;margin-bottom:2px">🕐 Vietnam (UTC+7)</div>
-        <div id="utc7-time" style="font-size:20px;font-weight:700;font-family:monospace;color:#f1f5f9">--:--:--</div>
-        <div id="utc7-date" style="font-size:11px;color:#94a3b8"></div>
+  <div class="hero-wrap">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">
+      <div>
+        <h1>⚽ World Cup 2026 — AI Prediction Engine
+          <span class="badge"><span class="live-dot"></span>LIVE</span>
+        </h1>
+        <div class="sub">A self-learning machine-learning model that predicts every match of the 2026 World Cup —
+          and retrains itself after every final whistle. Random forest + Poisson xG, loop-learned ELO,
+          live ESPN data.</div>
       </div>
-      <button id="rebuild-btn" onclick="triggerRebuild()" style="
-        background:#1e3a5f;border:1px solid #3b82f6;color:#93c5fd;
-        border-radius:8px;padding:6px 14px;font-size:12px;font-weight:600;
-        cursor:pointer;white-space:nowrap;transition:all .2s;
-      " onmouseover="this.style.background='#1d4ed8';this.style.color='#fff'"
-         onmouseout="this.style.background='#1e3a5f';this.style.color='#93c5fd'">
-        ⚡ Force Refresh
-      </button>
+      <div class="hero-side" style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+        <div id="utc7-clock" style="text-align:right;color:#cbd5e1;font-size:13px;min-width:150px">
+          <div style="font-size:10.5px;color:#8b9bb4;text-transform:uppercase;letter-spacing:.05em">🕐 Vietnam (UTC+7)</div>
+          <div id="utc7-time" style="font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;color:#f1f5f9">--:--:--</div>
+          <div id="utc7-date" style="font-size:11px;color:#8b9bb4"></div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <a class="hdr-btn" href="https://github.com/xuanbachmai/wc2026-prediction-dashboard" target="_blank" rel="noopener">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+            Source
+          </a>
+          <button class="hdr-btn" onclick="openAbout()">ℹ️ How it works</button>
+          <button class="hdr-btn" id="rebuild-btn" onclick="triggerRebuild()">⚡ Refresh</button>
+        </div>
+      </div>
     </div>
+    <div class="hero-stats" id="hero-stats"></div>
   </div>
 </header>
 
@@ -2144,6 +2226,63 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 
 
 </main>
+
+<!-- ── About modal ── -->
+<div id="about-overlay" onclick="if(event.target===this)closeAbout()">
+  <div id="about-modal">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <h2>How this project works</h2>
+      <button class="hdr-btn" onclick="closeAbout()">✕</button>
+    </div>
+    <p style="color:var(--muted);font-size:12.5px">A self-learning World Cup prediction system — model, backend, and live data pipeline.</p>
+
+    <h3>The model</h3>
+    <ul>
+      <li>A <b>random-forest classifier</b> predicts home / draw / away from ~50k historical internationals; a <b>Poisson regression</b> estimates expected goals (xG) per side.</li>
+      <li>A <b>Dixon-Coles matrix</b> converts xG into full scoreline probabilities.</li>
+      <li>Prediction factors: loop-learned ELO, squad quality, star-player form, tactics, injuries/suspensions and news sentiment.</li>
+    </ul>
+
+    <h3>The learning loop</h3>
+    <ul>
+      <li>After every final whistle the backend re-trains: <b>ELO ratings update</b> (K=60 World Cup weight), online-learned xG biases shift, and every remaining prediction is recomputed.</li>
+      <li>An <b>accuracy tracker</b> scores every prediction against the real result — nothing is hidden or retro-fitted.</li>
+      <li>The corners model and goalscorer picks are <b>walk-forward backtested</b>: each pick uses only data available before that match.</li>
+    </ul>
+
+    <h3>The live backend</h3>
+    <ul>
+      <li><code>serve.py</code> polls ESPN every 3 seconds during matches, writes goals, penalties and shootouts into the schedule, resolves bracket slots, and pushes <b>SSE live updates</b> into open browsers.</li>
+      <li>Missed results self-heal: a backfill pass re-fetches by date at boot and hourly, and a verify pass re-checks every recorded score against ESPN.</li>
+      <li>A GitHub Actions cron mirrors the same pipeline in CI, keeping the hosted page current around the clock.</li>
+    </ul>
+
+    <h3>Stack</h3>
+    <p>Python · scikit-learn · SciPy · pandas · vanilla JS (zero front-end dependencies) · GitHub Actions · Render</p>
+  </div>
+</div>
+
+<footer>
+  <div class="foot-wrap">
+    <div>
+      <div class="foot-title">⚽ World Cup 2026 — AI Prediction Engine</div>
+      <div class="foot-sub">A self-learning football prediction model built end-to-end: data pipeline, ML model,
+        live backend and this dashboard. Predictions are recomputed automatically after every match.
+        Educational / portfolio project — not gambling advice.</div>
+      <div class="tech-chips">
+        <span class="tech-chip">Python</span><span class="tech-chip">scikit-learn</span>
+        <span class="tech-chip">Poisson + Dixon-Coles</span><span class="tech-chip">ELO loop-learning</span>
+        <span class="tech-chip">SSE live updates</span><span class="tech-chip">GitHub Actions</span>
+      </div>
+    </div>
+    <div style="text-align:right">
+      <div class="foot-title">Xuan Bach Mai</div>
+      <a class="hdr-btn" href="https://github.com/xuanbachmai/wc2026-prediction-dashboard" target="_blank" rel="noopener" style="margin-top:6px">
+        View source on GitHub →
+      </a>
+    </div>
+  </div>
+</footer>
 
 <script>
 const DATA = {{DATA_JSON}};
@@ -3811,9 +3950,37 @@ function renderScorers() {
   el.innerHTML = summary + upcoming + boot + teams + btDetail;
 }
 
+// ── Hero stats + About modal ────────────────────────────────────────────────
+function renderHeroStats() {
+  const el = document.getElementById('hero-stats');
+  if (!el) return;
+  const acc = DATA.accuracy || {};
+  const played = acc.total_played || 0;
+  const sc = DATA.scorers || {};
+  const koSched = DATA.actual_ko_schedule || [];
+  const next = koSched.find(m => !m.played && !m.home_tbd && !m.away_tbd);
+  const stage = next ? ({R32:'Round of 32',R16:'Round of 16',QF:'Quarter-Finals',SF:'Semi-Finals','3rd':'3rd Place',Final:'The Final'}[next.round] || next.round) : 'Tournament complete';
+  const chips = [
+    { val: `${acc.direction_pct || 0}%`, lbl: `Model accuracy · ${acc.direction_correct||0}/${played}`,
+      col: (acc.direction_pct||0) >= 70 ? 'var(--green)' : 'var(--yellow)' },
+    { val: `${played} / 104`, lbl: 'Matches tracked', col: 'var(--accent)' },
+    { val: `${sc.total_goals || '—'}`, lbl: 'Goals recorded', col: 'var(--gold)' },
+    { val: stage, lbl: next ? `Next: ${next.home} vs ${next.away}` : 'Awaiting champion', col: '#fff' },
+    { val: DATA.champion || '—', lbl: 'Projected champion', col: 'var(--gold)' },
+  ];
+  el.innerHTML = chips.map(c => `
+    <div class="hero-chip">
+      <div class="hc-val" style="color:${c.col}">${c.val}</div>
+      <div class="hc-lbl">${c.lbl}</div>
+    </div>`).join('');
+}
+window.openAbout  = () => document.getElementById('about-overlay').classList.add('open');
+window.closeAbout = () => document.getElementById('about-overlay').classList.remove('open');
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAbout(); });
+
 // ── Init ───────────────────────────────────────────────────────────────────
+renderHeroStats();
 renderOverview();
-renderOverviewAccBadge();
 renderDateMatches();
 renderGroupMatches();
 renderStandings();
@@ -3851,7 +4018,7 @@ function triggerRebuild() {
   btn.disabled = true;
   btn.style.opacity = '0.6';
   // Hit the /rebuild endpoint that server.py handles (uses cached ML pipeline)
-  fetch('/rebuild')
+  fetch('/api/rebuild')
     .then(r => r.text())
     .then(() => {
       btn.textContent = '✅ Done — reloading…';
