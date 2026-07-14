@@ -1483,11 +1483,11 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
              radial-gradient(1000px 340px at 12% -40%, rgba(37,99,235,.28), transparent 60%),
              radial-gradient(800px 300px at 88% -50%, rgba(168,85,247,.14), transparent 55%),
              linear-gradient(180deg, #0e1729 0%, var(--bg) 100%);
-           border-bottom: 1px solid var(--border); padding: 26px 24px 20px; }
+           border-bottom: 1px solid var(--border); padding: 16px 24px 14px; }
   .hero-wrap { max-width: 1400px; margin: 0 auto; }
-  header h1 { font-size: 26px; font-weight: 800; letter-spacing: -.02em; color: #fff;
+  header h1 { font-size: 21px; font-weight: 800; letter-spacing: -.02em; color: #fff;
               display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-  header .sub { color: var(--muted); font-size: 13.5px; margin-top: 6px; max-width: 720px; }
+  header .sub { color: var(--muted); font-size: 12.5px; margin-top: 4px; max-width: 720px; }
   header .badge { background: rgba(34,197,94,.14); color: #4ade80; border: 1px solid rgba(34,197,94,.4);
                   border-radius: 999px; padding: 3px 12px 3px 9px; font-size: 11px; font-weight: 700;
                   display: inline-flex; align-items: center; gap: 6px; letter-spacing: .04em; }
@@ -1495,10 +1495,10 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
               animation: pulse 1.6s ease-in-out infinite; }
   @keyframes pulse { 0%,100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34,197,94,.5); }
                      50% { opacity: .7; box-shadow: 0 0 0 5px rgba(34,197,94,0); } }
-  .hero-stats { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+  .hero-stats { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
   .hero-chip { background: rgba(19,28,49,.75); border: 1px solid var(--border);
-               border-radius: 10px; padding: 8px 14px; backdrop-filter: blur(4px); }
-  .hero-chip .hc-val { font-size: 17px; font-weight: 800; font-variant-numeric: tabular-nums; }
+               border-radius: 10px; padding: 6px 12px; backdrop-filter: blur(4px); }
+  .hero-chip .hc-val { font-size: 15px; font-weight: 800; font-variant-numeric: tabular-nums; }
   .hero-chip .hc-lbl { font-size: 10.5px; color: var(--muted); text-transform: uppercase;
                        letter-spacing: .06em; margin-top: 1px; }
   .hdr-btn { background: rgba(19,28,49,.75); border: 1px solid var(--border); color: var(--text);
@@ -1743,11 +1743,13 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
           border-radius: 3px; vertical-align: middle; margin-left: 6px; }
 
   /* ── Team profiles (list + detail layout) ── */
-  .tp-shell { display: flex; gap: 0; height: calc(100vh - 140px); min-height: 500px; }
+  .tp-shell { display: flex; gap: 18px; align-items: flex-start; }
   .tp-sidebar {
-    width: 260px; min-width: 220px; flex-shrink: 0;
+    width: 264px; min-width: 220px; flex-shrink: 0;
     display: flex; flex-direction: column;
-    border-right: 1px solid var(--border);
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden;
+    position: sticky; top: 62px; max-height: calc(100vh - 80px);
   }
   .tp-search-wrap { padding: 12px 12px 8px; }
   .tp-search {
@@ -1779,26 +1781,42 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .tp-item-elo { font-size: 12px; font-weight: 700; color: var(--gold); flex-shrink: 0; }
 
   .tp-detail {
-    flex: 1; overflow-y: auto; padding: 24px 28px;
+    flex: 1; min-width: 0;
     display: flex; flex-direction: column; gap: 20px;
   }
   .tp-empty { display: flex; align-items: center; justify-content: center;
-              height: 100%; color: var(--muted); font-size: 14px; }
-  .tp-d-hero { display: flex; align-items: flex-start; gap: 20px; }
-  .tp-d-flag { font-size: 56px; line-height: 1; }
-  .tp-d-title { flex: 1; }
-  .tp-d-name { font-size: 26px; font-weight: 800; margin-bottom: 4px; }
-  .tp-d-meta { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+              min-height: 300px; color: var(--muted); font-size: 14px; }
+  .tp-d-hero {
+    display: flex; align-items: center; gap: 22px; flex-wrap: wrap;
+    background:
+      radial-gradient(600px 200px at 8% -30%, rgba(37,99,235,.30), transparent 60%),
+      linear-gradient(135deg, #14213c 0%, var(--surface) 70%);
+    border: 1px solid var(--border); border-radius: 14px;
+    padding: 22px 26px; box-shadow: var(--shadow);
+  }
+  .tp-d-flag { font-size: 64px; line-height: 1; filter: drop-shadow(0 4px 12px rgba(0,0,0,.4)); }
+  .tp-d-title { flex: 1; min-width: 200px; }
+  .tp-d-name { font-size: 30px; font-weight: 800; letter-spacing: -.02em; margin-bottom: 7px; }
+  .tp-d-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
   .tp-d-badge {
-    padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
-    background: var(--surface2); color: var(--muted); border: 1px solid var(--border);
+    padding: 3px 11px; border-radius: 20px; font-size: 11px; font-weight: 600;
+    background: rgba(11,17,32,.5); color: var(--muted); border: 1px solid var(--border);
   }
   .tp-d-elo-big { font-size: 14px; font-weight: 700; color: var(--gold); }
   .tp-win-big { font-size: 13px; color: var(--green); font-weight: 600; }
+  .tp-form { display: flex; gap: 5px; align-items: center; }
+  .form-dot { width: 27px; height: 27px; border-radius: 50%; display: inline-flex;
+              align-items: center; justify-content: center; font-size: 11px; font-weight: 800;
+              cursor: default; }
+  .form-W { background: rgba(34,197,94,.18);  color: #4ade80; border: 1px solid #22c55e66; }
+  .form-D { background: rgba(148,163,184,.14); color: #94a3b8; border: 1px solid #64748b66; }
+  .form-L { background: rgba(239,68,68,.15);  color: #f87171; border: 1px solid #ef444466; }
 
   .tp-section-label {
-    font-size: 10px; text-transform: uppercase; letter-spacing: .08em;
-    color: var(--muted); margin-bottom: 8px; font-weight: 600;
+    font-size: 12px; text-transform: uppercase; letter-spacing: .07em;
+    color: var(--text); margin-bottom: 10px; font-weight: 800;
+    padding-left: 10px; border-left: 3px solid var(--accent);
+    display: flex; align-items: baseline; gap: 6px;
   }
   .tp-d-notes {
     background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
@@ -2150,6 +2168,10 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     .scout-row { grid-template-columns: 1fr; }
     .stat-grid { font-size: 11px; }
     .matchday-row { grid-template-columns: 1fr; }
+    .tp-shell { flex-direction: column; }
+    .tp-sidebar { position: static; width: 100%; max-height: 300px; }
+    .tp-d-name { font-size: 24px; }
+    .tp-d-flag { font-size: 48px; }
     header { padding: 20px 16px 16px; }
     header h1 { font-size: 20px; }
     header .sub { font-size: 12px; }
@@ -3322,8 +3344,10 @@ function selectTeam(name) {
   const eloNorm = Math.min(1, Math.max(0, (t.elo - 1300) / 900));
   const winNorm = Math.min(1, t.win_pct * 5);
 
+  const tpx = (DATA.team_profiles || {})[name] || {};
+  const form = teamForm(name);
   document.getElementById('tp-detail').innerHTML = `
-    <!-- Hero -->
+    <!-- Hero banner -->
     <div class="tp-d-hero">
       <div class="tp-d-flag">${teamFlag(name)}</div>
       <div class="tp-d-title">
@@ -3333,8 +3357,17 @@ function selectTeam(name) {
           ${styleBadge(t.style)}
           <span class="tp-d-elo-big">ELO ${t.elo}</span>
           <span class="tp-win-big">Win ${pct(t.win_pct)}</span>
+          ${tpx.coach ? `<span class="tp-d-badge">👔 ${tpx.coach}</span>` : ''}
+          ${tpx.wc_titles ? `<span class="tp-d-badge" style="color:var(--gold)">🏆 ×${tpx.wc_titles}</span>` : ''}
         </div>
       </div>
+      ${form.length ? `
+      <div style="text-align:right">
+        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Form</div>
+        <div class="tp-form">
+          ${form.map(f => `<span class="form-dot form-${f.r}" title="${f.score} vs ${f.opp}">${f.r}</span>`).join('')}
+        </div>
+      </div>` : ''}
     </div>
 
     <!-- Tournament odds -->
@@ -3410,6 +3443,26 @@ function selectTeam(name) {
 
     ${teamProfileSections(name)}
   `;
+}
+
+// Last-6 form guide: W/D/L per played match (penalties decide KO draws)
+function teamForm(name) {
+  const all = [...(DATA.group_matches||[]), ...(DATA.actual_ko_schedule||[])]
+    .filter(m => m.played && (m.home === name || m.away === name))
+    .sort((a,b) => a.match_no - b.match_no);
+  const out = [];
+  for (const m of all) {
+    const sc = (m.actual || '').match(/^(\d+)[–-](\d+)/);
+    if (!sc) continue;
+    const isHome = m.home === name;
+    const gf = +(isHome ? sc[1] : sc[2]);
+    const ga = +(isHome ? sc[2] : sc[1]);
+    let r = gf > ga ? 'W' : gf < ga ? 'L' : 'D';
+    if (r === 'D' && m.home_pens != null && m.away_pens != null)
+      r = (isHome === (m.home_pens > m.away_pens)) ? 'W' : 'L';
+    out.push({ r, opp: isHome ? m.away : m.home, score: `${gf}–${ga}` });
+  }
+  return out.slice(-6);
 }
 
 // ── Extended profile: squad, 2026 stats, scorers, World Cup history ─────────
