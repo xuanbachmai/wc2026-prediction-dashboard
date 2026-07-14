@@ -2137,17 +2137,6 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   ::-webkit-scrollbar-track { background: var(--bg); }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
-  /* ── Footer ── */
-  footer { border-top: 1px solid var(--border); margin-top: 48px;
-           padding: 28px 24px 36px; background: linear-gradient(180deg, var(--bg), #0d1526); }
-  .foot-wrap { max-width: 1400px; margin: 0 auto; display: flex;
-               justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap; }
-  .foot-title { font-weight: 700; font-size: 14px; margin-bottom: 6px; }
-  .foot-sub { color: var(--muted); font-size: 12.5px; max-width: 520px; line-height: 1.6; }
-  .tech-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
-  .tech-chip { background: var(--surface); border: 1px solid var(--border); color: var(--muted);
-               border-radius: 999px; padding: 3px 11px; font-size: 11px; font-weight: 600; }
-
   /* ── About modal ── */
   #about-overlay { display: none; position: fixed; inset: 0; background: rgba(4,8,18,.72);
                    backdrop-filter: blur(6px); z-index: 200; overflow-y: auto; padding: 5vh 16px; }
@@ -2391,27 +2380,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   </div>
 </div>
 
-<footer>
-  <div class="foot-wrap">
-    <div>
-      <div class="foot-title">⚽ World Cup 2026 — AI Prediction Engine</div>
-      <div class="foot-sub">A self-learning football prediction model built end-to-end: data pipeline, ML model,
-        live backend and this dashboard. Predictions are recomputed automatically after every match.
-        Educational / portfolio project — not gambling advice.</div>
-      <div class="tech-chips">
-        <span class="tech-chip">Python</span><span class="tech-chip">scikit-learn</span>
-        <span class="tech-chip">Poisson + Dixon-Coles</span><span class="tech-chip">ELO loop-learning</span>
-        <span class="tech-chip">SSE live updates</span><span class="tech-chip">GitHub Actions</span>
-      </div>
-    </div>
-    <div style="text-align:right">
-      <div class="foot-title">Xuan Bach Mai</div>
-      <a class="hdr-btn" href="https://github.com/xuanbachmai/wc2026-prediction-dashboard" target="_blank" rel="noopener" style="margin-top:6px">
-        View source on GitHub →
-      </a>
-    </div>
-  </div>
-</footer>
+
 
 <script>
 const DATA = {{DATA_JSON}};
