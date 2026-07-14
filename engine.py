@@ -938,6 +938,100 @@ def build_all_data(goals_model, outcome_model, elo, stats):
     print(f"[dashboard]   Actual-bracket projection: final "
           f"{projected_final['home']} vs {projected_final['away']} → champion {champion}")
 
+    # ── Step 5b3: Probabilistic tournament odds from the ACTUAL bracket ──────
+    # Propagate win-probability distributions through the remaining matches.
+    # Played matches contribute certainty; unplayed use model pairwise odds.
+    from collections import defaultdict as _dd
+
+    _pair_memo: dict[tuple, float] = {}
+
+    def _p_beats(a: str, b: str) -> float:
+        k = (a, b)
+        if k not in _pair_memo:
+            pr = predict_enhanced(a, b, outcome_model, goals_model, learned_elo, stats,
+                                  factor_weights=online_factor_weights,
+                                  xg_bias_home=online_xg_bias_home,
+                                  xg_bias_away=online_xg_bias_away,
+                                  extra_draw_inflation=online_draw_inflation)
+            tot = (pr["p_home_win"] + pr["p_away_win"]) or 1
+            _pair_memo[k] = pr["p_home_win"] / tot
+        return _pair_memo[k]
+
+    _ROUND_OF = lambda n: ("R32" if n <= 88 else "R16" if n <= 96 else
+                           "QF" if n <= 100 else "SF" if n <= 102 else
+                           "3rd" if n == 103 else "Final")
+    w_dist: dict[int, dict] = {}
+    l_dist: dict[int, dict] = {}
+    slot_mass: dict[int, dict] = {}
+
+    for m in sorted([x for x in SCHEDULE if x.get("group") in KO_ROUND_LABELS],
+                    key=lambda x: x["match_no"]):
+        def _dist(nm):
+            if nm.startswith("TBD ("):
+                token = nm[5:-1]
+                try:
+                    src = int(token[1:])
+                except ValueError:
+                    return {}
+                return dict((w_dist if token[0] == "W" else l_dist).get(src, {}))
+            return {nm: 1.0}
+        hd, ad = _dist(m["home"]), _dist(m["away"])
+        sm = _dd(float)
+        for tt, pp in list(hd.items()) + list(ad.items()):
+            sm[tt] += pp
+        slot_mass[m["match_no"]] = dict(sm)
+
+        hs, as_ = m["home_score"], m["away_score"]
+        if hs is not None and as_ is not None and is_played(m):
+            hp, ap = m.get("home_pens"), m.get("away_pens")
+            if hs > as_:
+                w, l = m["home"], m["away"]
+            elif as_ > hs:
+                w, l = m["away"], m["home"]
+            elif hp is not None and ap is not None:
+                w, l = (m["home"], m["away"]) if hp > ap else (m["away"], m["home"])
+            else:
+                continue
+            w_dist[m["match_no"]] = {w: 1.0}
+            l_dist[m["match_no"]] = {l: 1.0}
+        else:
+            wd, ld = _dd(float), _dd(float)
+            for th, ph_ in hd.items():
+                for ta, pa_ in ad.items():
+                    if th == ta:
+                        continue
+                    pj = ph_ * pa_
+                    pw = _p_beats(th, ta)
+                    wd[th] += pj * pw
+                    wd[ta] += pj * (1 - pw)
+                    ld[ta] += pj * pw
+                    ld[th] += pj * (1 - pw)
+            w_dist[m["match_no"]] = dict(wd)
+            l_dist[m["match_no"]] = dict(ld)
+
+    def _reach(match_nos):
+        out = _dd(float)
+        for n in match_nos:
+            for tt, pp in slot_mass.get(n, {}).items():
+                out[tt] += pp
+        return out
+
+    reach_qf    = _reach([97, 98, 99, 100])
+    reach_sf    = _reach([101, 102])
+    reach_final = _reach([104])
+    title_dist  = w_dist.get(104, {})
+
+    # Deepest round each team certainly appeared in (for eliminated labels)
+    achieved_round: dict[str, str] = {}
+    _depth = {"R32": 1, "R16": 2, "QF": 3, "SF": 4, "3rd": 4, "Final": 5}
+    for n, sm in slot_mass.items():
+        rnd = _ROUND_OF(n)
+        for tt, pp in sm.items():
+            if pp >= 0.999 and _depth.get(rnd, 0) > _depth.get(achieved_round.get(tt, ""), 0):
+                achieved_round[tt] = rnd
+    print(f"[dashboard]   Bracket odds: " + ", ".join(
+        f"{t} {p*100:.0f}%" for t, p in sorted(title_dist.items(), key=lambda x: -x[1])[:4]))
+
     # ── Add played KO matches to accuracy tracking ───────────────────────────
     ko_accuracy_rows = []
     for entry in actual_ko_schedule:
@@ -1240,25 +1334,25 @@ def build_all_data(goals_model, outcome_model, elo, stats):
         elo_ = round(learned_elo.get(team, 1500))
         pos  = team_exp_pos.get(team, 4)
 
-        is_champ = (team == champion)
-        in_final = is_champ or any(r["round"] == "Final" and team in (r["team1"], r["team2"]) for r in ko_rows)
-        in_sf    = in_final or any(r["round"] == "SF"    and team in (r["team1"], r["team2"]) for r in ko_rows)
-        in_qf    = in_sf    or any(r["round"] == "QF"    and team in (r["team1"], r["team2"]) for r in ko_rows)
-        in_r16   = in_qf    or any(r["round"] == "R16"   and team in (r["team1"], r["team2"]) for r in ko_rows)
-        in_r32   = in_r16   or any(r["round"] == "R32"   and team in (r["team1"], r["team2"]) for r in ko_rows)
-        # Best 3rd place teams also go to R32 even though they don't finish top-2
-        advances = pos <= 2 or in_r32
+        wpct = round(float(min(title_dist.get(team, 0.0), 1.0)) * 100, 1)
+        fpct = round(float(min(reach_final.get(team, 0.0), 1.0)) * 100, 1)
+        spct = round(float(min(reach_sf.get(team, 0.0), 1.0)) * 100, 1)
+        qpct = round(float(min(reach_qf.get(team, 0.0), 1.0)) * 100, 1)
+        alive = bool(wpct > 0)
+        made_r32 = team in achieved_round
 
         win_probs.append({
             "team":         team,
             "group":        grp,
             "elo":          elo_,
             "exp_pos":      pos,         # expected group finish 1–4
-            "advances":     advances,    # True = makes knockout round
-            "win_pct":      100.0 if is_champ else 0.0,
-            "final_pct":    100.0 if in_final else 0.0,
-            "sf_pct":       100.0 if in_sf    else 0.0,
-            "qf_pct":       100.0 if in_qf    else 0.0,
+            "advances":     made_r32,    # True = made the knockout rounds
+            "alive":        alive,       # still able to win the title
+            "out_round":    None if alive else achieved_round.get(team, "Groups"),
+            "win_pct":      wpct,
+            "final_pct":    fpct,
+            "sf_pct":       spct,
+            "qf_pct":       qpct,
             "star_rating":  ti["star_rating"],
             "star_form":    ti["star_form"],
             "squad_depth":  ti["squad_depth"],
@@ -1269,11 +1363,11 @@ def build_all_data(goals_model, outcome_model, elo, stats):
             "key_players":  hint.get("key_players", []),
             "notes":        hint.get("scouting_notes", ""),
         })
-    # Sort by: champion first, then by deepest KO round, then by ELO
-    round_order = {"Final": 5, "SF": 4, "QF": 3, "R16": 2, "R32": 1, "": 0}
+    # Sort: live title odds first, then deepest achieved round, then ELO
+    round_order = {"Final": 5, "3rd": 4, "SF": 4, "QF": 3, "R16": 2, "R32": 1, "Groups": 0}
     win_probs.sort(key=lambda x: (
-        1 if x["team"] == champion else 0,
-        round_order.get(team_ko_rounds.get(x["team"], ""), 0),
+        x["win_pct"],
+        round_order.get(x["out_round"] or "Final", 0) if not x["alive"] else 5,
         x["elo"],
     ), reverse=True)
 
@@ -2954,10 +3048,10 @@ function renderOverview() {
       ? `<span style="color:var(--green);font-size:11px">✓ Advances</span>`
       : `<span style="color:var(--muted);font-size:11px">Eliminated</span>`;
     const roundLabel = t.win_pct === 100 ? '🏆 Champion' :
-                       t.final_pct === 100 ? '⭐ Final' :
-                       t.sf_pct === 100 ? 'Semi-Final' :
-                       t.qf_pct === 100 ? 'Quarter-Final' :
-                       t.advances ? 'Round of 32' : 'Group stage exit';
+                       t.alive ? `🎯 Title ${t.win_pct}%` :
+                       t.out_round === 'Final' ? '🥈 Runner-up' :
+                       t.out_round && t.out_round !== 'Groups' ? `Out — ${t.out_round}` :
+                       'Group stage exit';
     const eloChg = DATA.accuracy && DATA.accuracy.elo_changes && DATA.accuracy.elo_changes[t.team];
     const eloTag = eloChg ? `<span style="color:${eloChg>0?'var(--green)':'var(--red)'};font-size:10px">${eloChg>0?'+':''}${eloChg}</span>` : '';
     return `<tr>
@@ -3289,7 +3383,9 @@ function renderTeamList(q) {
         <div class="tp-item-name">${t.team}</div>
         <div class="tp-item-sub">Group ${t.group} · ${styleBadge(t.style)}</div>
       </div>
-      <div class="tp-item-elo">${pct(t.win_pct)}</div>
+      <div class="tp-item-elo">${t.alive === false
+        ? `<span style="color:var(--muted);font-size:10px;font-weight:700">OUT · ${t.out_round === 'Groups' ? 'Groups' : t.out_round}</span>`
+        : pct(t.win_pct)}</div>
     </div>`).join('');
 }
 
@@ -3807,55 +3903,77 @@ window.renderCornersMarkets = function() {
   </div>
   ${scoreboard}` : '';
 
-  // ── Rolling MAE chart ─────────────────────────────────────────────────────
+  // ── Rolling MAE chart: smooth area + per-match accuracy ribbon ────────────
   function learningChart() {
     if (wf.length < 2) return '';
-    const W=560, H=110, PX=38, PY=12, PB=22;
+    const W=720, H=150, PX=34, PT=14, CB=44, RB=26;   // ribbon sits under the curve
+    const chartH = H - PT - CB;
     const maes   = wf.map(w => w.rolling_mae);
-    const maxMAE = Math.max(...maes, 4);
-    const pts = wf.map((w,i) => {
-      const x = PX + (W-PX-8) * i / Math.max(wf.length-1, 1);
-      const y = PY + (H-PY-PB) * (1 - w.rolling_mae / maxMAE);
-      return [x, y, w];
-    });
-    const line = pts.map(([x,y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
-    const yLbls = [1,2,3,4].filter(v=>v<=maxMAE+0.3).map(v => {
-      const y = PY + (H-PY-PB) * (1 - v/maxMAE);
-      return `<text x="${PX-3}" y="${y+3}" text-anchor="end" font-size="8" fill="var(--muted)">${v}</text>
-              <line x1="${PX}" y1="${y}" x2="${W-4}" y2="${y}" stroke="var(--border)" stroke-width="0.5"/>`;
+    const maxMAE = Math.ceil(Math.max(...maes, 3.5));
+    const X = i => PX + (W-PX-10) * i / Math.max(wf.length-1, 1);
+    const Y = v => PT + chartH * (1 - v / maxMAE);
+    const line = wf.map((w,i) => `${X(i).toFixed(1)},${Y(w.rolling_mae).toFixed(1)}`).join(' ');
+    const area = `${PX},${(PT+chartH).toFixed(1)} ${line} ${X(wf.length-1).toFixed(1)},${(PT+chartH).toFixed(1)}`;
+    const grid = Array.from({length:maxMAE}, (_,k)=>k+1).map(v => `
+      <line x1="${PX}" y1="${Y(v)}" x2="${W-6}" y2="${Y(v)}" stroke="var(--border)" stroke-width="0.5" stroke-dasharray="3 4"/>
+      <text x="${PX-5}" y="${Y(v)+3}" text-anchor="end" font-size="9" fill="var(--muted)">${v}</text>`).join('');
+    // X axis: match numbers every ~step
+    const step = Math.max(1, Math.round(wf.length / 8));
+    const xLbls = wf.map((w,i) => (i % step === 0 || i === wf.length-1)
+      ? `<text x="${X(i).toFixed(1)}" y="${H-RB-4}" text-anchor="middle" font-size="8.5" fill="var(--muted)">M${w.match_no ?? i+1}</text>` : '').join('');
+    // Accuracy ribbon: one slim cell per match
+    const cw = Math.max(2, (W-PX-10) / wf.length - 1);
+    const ribbon = wf.map((w,i) => {
+      const col = w.within2 ? '#22c55e' : w.within3 ? '#f59e0b' : '#ef4444';
+      return `<rect x="${(X(i)-cw/2).toFixed(1)}" y="${H-RB+6}" width="${cw.toFixed(1)}" height="12" rx="1.5" fill="${col}" opacity="0.85">
+        <title>${w.home} vs ${w.away} — predicted ${w.pred_total}, actual ${w.actual_total} (err ${w.error>0?'+':''}${w.error})</title>
+      </rect>`;
     }).join('');
-    const xLbls = pts.map(([x,y,w]) =>
-      `<text x="${x.toFixed(1)}" y="${H-5}" text-anchor="middle" font-size="7.5" fill="var(--muted)">${(w.away||'').split(' ').pop().slice(0,5)}</text>`
-    ).join('');
-    const dots = pts.map(([x,y,w]) => {
-      const col = w.within2?'#22c55e':w.within3?'#f59e0b':'#ef4444';
-      return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4" fill="${col}" stroke="var(--bg)" stroke-width="1.5">
-                <title>${w.home} vs ${w.away}: pred ${w.pred_total} actual ${w.actual_total} err ${w.error>0?'+':''}${w.error}</title>
-              </circle>`;
-    }).join('');
-    return `<div style="margin-bottom:14px">
-      <div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:4px">📉 Rolling MAE &nbsp;🟢≤±2 &nbsp;🟡≤±3 &nbsp;🔴&gt;±3</div>
-      <svg width="${W}" height="${H}" style="display:block;overflow:visible">
-        ${yLbls}
+    const last = wf[wf.length-1].rolling_mae;
+    return `<div class="card" style="margin-bottom:14px;padding:14px 16px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;flex-wrap:wrap;gap:6px">
+        <span style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em">📉 Prediction error over time</span>
+        <span style="font-size:11px;color:var(--muted)">rolling avg error <b style="color:var(--text)">${last.toFixed(2)}</b> corners ·
+          ribbon: <span style="color:#22c55e">■</span> within ±2 <span style="color:#f59e0b">■</span> ±3 <span style="color:#ef4444">■</span> miss</span>
+      </div>
+      <svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:820px;display:block">
+        ${grid}
+        <polygon points="${area}" fill="rgba(59,130,246,.12)"/>
         <polyline points="${line}" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linejoin="round"/>
-        ${xLbls}${dots}
+        ${xLbls}${ribbon}
       </svg></div>`;
   }
 
-  // ── Learned bias pills ─────────────────────────────────────────────────────
+  // ── Learned biases: ranked bars, over- vs under-predicted ─────────────────
   function biasSection() {
-    const teams = Object.entries(lb).sort((a,b)=>Math.abs(b[1])-Math.abs(a[1])).filter(([,v])=>Math.abs(v)>0.1);
-    if (!teams.length) return '';
-    const pills = teams.map(([team,bias]) => {
-      const col = bias>0.3?'#22c55e':bias<-0.3?'#ef4444':'#94a3b8';
-      const bg  = bias>0.3?'rgba(34,197,94,0.1)':bias<-0.3?'rgba(239,68,68,0.1)':'rgba(148,163,184,0.1)';
-      return `<span style="display:inline-flex;align-items:center;gap:3px;background:${bg};color:${col};border-radius:99px;padding:2px 8px;font-size:11px;font-weight:600;white-space:nowrap">
-        ${team} ${bias>0?'▲+':'▼'}${bias.toFixed(2)}
-      </span>`;
-    }).join(' ');
-    return `<div style="margin-bottom:14px">
-      <div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px">🧠 Learned biases applied to upcoming predictions</div>
-      <div style="display:flex;flex-wrap:wrap;gap:5px">${pills}</div>
+    const entries = Object.entries(lb).filter(([,v]) => Math.abs(v) > 0.1);
+    if (!entries.length) return '';
+    const boost  = entries.filter(([,v]) => v > 0).sort((a,b) => b[1]-a[1]).slice(0, 8);
+    const reduce = entries.filter(([,v]) => v < 0).sort((a,b) => a[1]-b[1]).slice(0, 8);
+    const maxAbs = Math.max(...entries.map(([,v]) => Math.abs(v)));
+    const row = ([team, v], col) => `
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
+        <span style="width:110px;font-size:11.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${teamFlag(team)} ${team}</span>
+        <div style="flex:1;height:10px;background:var(--surface2);border-radius:5px;overflow:hidden">
+          <div style="width:${(Math.abs(v)/maxAbs*100).toFixed(0)}%;height:100%;background:${col};border-radius:5px"></div>
+        </div>
+        <span style="width:44px;text-align:right;font-size:11px;font-weight:700;color:${col};font-variant-numeric:tabular-nums">${v>0?'+':''}${v.toFixed(2)}</span>
+      </div>`;
+    const rest = entries.length - boost.length - reduce.length;
+    return `<div class="card" style="margin-bottom:14px;padding:14px 16px">
+      <div style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">🧠 What the model has learned per team</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:12px">Correction applied to upcoming corner predictions — positive: the model was under-predicting this team's corners, so it now adds; negative: it subtracts.</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div>
+          <div style="font-size:10.5px;font-weight:700;color:#4ade80;text-transform:uppercase;letter-spacing:.05em;margin-bottom:7px">▲ Boosted (model was too low)</div>
+          ${boost.map(e => row(e, '#22c55e')).join('') || '<span style="color:var(--muted);font-size:11px">none</span>'}
+        </div>
+        <div>
+          <div style="font-size:10.5px;font-weight:700;color:#f87171;text-transform:uppercase;letter-spacing:.05em;margin-bottom:7px">▼ Reduced (model was too high)</div>
+          ${reduce.map(e => row(e, '#ef4444')).join('') || '<span style="color:var(--muted);font-size:11px">none</span>'}
+        </div>
+      </div>
+      ${rest > 0 ? `<div style="font-size:10.5px;color:var(--muted);margin-top:8px">+ ${rest} more teams with smaller corrections</div>` : ''}
     </div>`;
   }
 

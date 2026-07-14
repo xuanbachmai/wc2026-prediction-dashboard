@@ -430,7 +430,7 @@ SCHEDULE: list[dict] = [
 
     # ══════════════════════ SEMI-FINALS ══════════════════════
     {"match_no": 101, "date": "2026-07-14", "group": "SF", "matchday": None,
-     "home": "France", "away": "Spain", "stadium": "AT&T Stadium",            "city": "Dallas",       "home_score": None, "away_score": None},
+     "home": "France", "away": "Spain", "stadium": "AT&T Stadium",            "city": "Dallas",       "home_score": 0, "away_score": 0},
     {"match_no": 102, "date": "2026-07-15", "group": "SF", "matchday": None,
      "home": "England", "away": "Argentina","stadium": "Mercedes-Benz Stadium",   "city": "Atlanta",      "home_score": None, "away_score": None},
 
