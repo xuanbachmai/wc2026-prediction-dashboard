@@ -2298,5 +2298,28 @@
     "away_yellows": 1,
     "source": "espn",
     "event_id": "760513"
+  },
+  "france vs spain": {
+    "home": "France",
+    "away": "Spain",
+    "home_corners": 7,
+    "away_corners": 1,
+    "total": 8,
+    "home_poss": 49.1,
+    "away_poss": 50.9,
+    "home_shots": 10,
+    "away_shots": 10,
+    "home_shots_on": 3,
+    "away_shots_on": 2,
+    "home_crosses": 20,
+    "away_crosses": 8,
+    "home_passes": 472,
+    "away_passes": 500,
+    "home_fouls": 11,
+    "away_fouls": 12,
+    "home_yellows": 2,
+    "away_yellows": 1,
+    "source": "espn",
+    "event_id": "760514"
   }
 }

@@ -2834,5 +2834,27 @@
         "kind": "goal"
       }
     ]
+  },
+  "france vs spain": {
+    "match_no": 101,
+    "date": "2026-07-14",
+    "home": "France",
+    "away": "Spain",
+    "goals": [
+      {
+        "scorer": "Mikel Oyarzabal",
+        "assist": "",
+        "team": "Spain",
+        "clock": "22'",
+        "kind": "pen"
+      },
+      {
+        "scorer": "Pedro Porro",
+        "assist": "Dani Olmo",
+        "team": "Spain",
+        "clock": "58'",
+        "kind": "goal"
+      }
+    ]
   }
 }
