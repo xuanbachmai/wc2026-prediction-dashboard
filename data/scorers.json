@@ -2856,5 +2856,34 @@
         "kind": "goal"
       }
     ]
+  },
+  "england vs argentina": {
+    "match_no": 102,
+    "date": "2026-07-15",
+    "home": "England",
+    "away": "Argentina",
+    "goals": [
+      {
+        "scorer": "Anthony Gordon",
+        "assist": "Morgan Rogers",
+        "team": "England",
+        "clock": "55'",
+        "kind": "goal"
+      },
+      {
+        "scorer": "Enzo Fernández",
+        "assist": "Lionel Messi",
+        "team": "Argentina",
+        "clock": "85'",
+        "kind": "goal"
+      },
+      {
+        "scorer": "Lautaro Martínez",
+        "assist": "Lionel Messi",
+        "team": "Argentina",
+        "clock": "90'+2'",
+        "kind": "goal"
+      }
+    ]
   }
 }
