@@ -1031,6 +1031,9 @@ def build_all_data(goals_model, outcome_model, elo, stats):
                 achieved_round[tt] = rnd
     print(f"[dashboard]   Bracket odds: " + ", ".join(
         f"{t} {p*100:.0f}%" for t, p in sorted(title_dist.items(), key=lambda x: -x[1])[:4]))
+    # Champion display = highest title probability (consistent with odds shown)
+    if title_dist:
+        champion = max(title_dist.items(), key=lambda x: x[1])[0]
 
     # ── Add played KO matches to accuracy tracking ───────────────────────────
     ko_accuracy_rows = []
