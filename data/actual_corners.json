@@ -2321,5 +2321,28 @@
     "away_yellows": 1,
     "source": "espn",
     "event_id": "760514"
+  },
+  "england vs argentina": {
+    "home": "England",
+    "away": "Argentina",
+    "home_corners": 2,
+    "away_corners": 6,
+    "total": 8,
+    "home_poss": 35.8,
+    "away_poss": 64.2,
+    "home_shots": 5,
+    "away_shots": 15,
+    "home_shots_on": 2,
+    "away_shots_on": 5,
+    "home_crosses": 16,
+    "away_crosses": 20,
+    "home_passes": 325,
+    "away_passes": 588,
+    "home_fouls": 11,
+    "away_fouls": 15,
+    "home_yellows": 1,
+    "away_yellows": 3,
+    "source": "espn",
+    "event_id": "760515"
   }
 }

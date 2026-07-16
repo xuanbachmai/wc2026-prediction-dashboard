@@ -244,6 +244,24 @@
   "coach": "Diego Maradona",
   "players": [
    {
+    "name": "José Manuel López",
+    "jersey": "21",
+    "pos": "FW",
+    "age": 25,
+    "dob": "2000-12-06",
+    "height_cm": 190,
+    "weight_kg": 77
+   },
+   {
+    "name": "Giuliano Simeone",
+    "jersey": "17",
+    "pos": "FW",
+    "age": 23,
+    "dob": "2002-12-18",
+    "height_cm": 173,
+    "weight_kg": 74
+   },
+   {
     "name": "Emiliano Martínez",
     "jersey": "23",
     "pos": "GK",
@@ -322,6 +340,15 @@
     "age": 28,
     "dob": "1998-01-18",
     "height_cm": 175,
+    "weight_kg": 78
+   },
+   {
+    "name": "Marcos Senesi",
+    "jersey": "2",
+    "pos": "DF",
+    "age": 29,
+    "dob": "1997-05-10",
+    "height_cm": 185,
     "weight_kg": 78
    },
    {
@@ -440,24 +467,6 @@
     "dob": "2000-01-31",
     "height_cm": 170,
     "weight_kg": 71
-   },
-   {
-    "name": "José Manuel López",
-    "jersey": "21",
-    "pos": "FW",
-    "age": 25,
-    "dob": "2000-12-06",
-    "height_cm": 190,
-    "weight_kg": 77
-   },
-   {
-    "name": "Giuliano Simeone",
-    "jersey": "17",
-    "pos": "FW",
-    "age": 23,
-    "dob": "2002-12-18",
-    "height_cm": 173,
-    "weight_kg": 74
    },
    {
     "name": "Nico Paz",
@@ -2184,11 +2193,11 @@
    {
     "name": "Santiago Arias",
     "jersey": "4",
-    "pos": "DF",
-    "age": 34,
-    "dob": "1992-01-13",
-    "height_cm": 178,
-    "weight_kg": 76
+    "pos": "MF",
+    "age": 31,
+    "dob": "1995-06-19",
+    "height_cm": 180,
+    "weight_kg": 78
    },
    {
     "name": "Johan Mojica",
@@ -2337,11 +2346,11 @@
    {
     "name": "Jhon Córdoba",
     "jersey": "9",
-    "pos": "FW",
-    "age": 33,
-    "dob": "1993-05-11",
-    "height_cm": 188,
-    "weight_kg": 84
+    "pos": "MF",
+    "age": 26,
+    "dob": "2000-07-15",
+    "height_cm": 183,
+    "weight_kg": 66
    },
    {
     "name": "Luis Díaz",
@@ -6372,11 +6381,11 @@
    {
     "name": "Brian Gutiérrez",
     "jersey": "26",
-    "pos": "DF",
-    "age": 19,
-    "dob": "2007-01-21",
-    "height_cm": 185,
-    "weight_kg": 82
+    "pos": "MF",
+    "age": 23,
+    "dob": "2003-06-17",
+    "height_cm": 178,
+    "weight_kg": 72
    },
    {
     "name": "Obed Vargas",
@@ -7110,7 +7119,7 @@
    {
     "name": "Matthew Garbett",
     "jersey": "7",
-    "pos": "FW",
+    "pos": "MF",
     "age": 24,
     "dob": "2002-04-13",
     "height_cm": 193,
@@ -7164,7 +7173,7 @@
    {
     "name": "Jesse Randall",
     "jersey": "21",
-    "pos": "FW",
+    "pos": "MF",
     "age": 23,
     "dob": "2002-08-19",
     "height_cm": 175,
@@ -7519,8 +7528,8 @@
     "name": "José Córdoba",
     "jersey": "3",
     "pos": "DF",
-    "age": 27,
-    "dob": "1998-12-10",
+    "age": 25,
+    "dob": "2001-06-03",
     "height_cm": 188,
     "weight_kg": 87
    },
@@ -7636,8 +7645,8 @@
     "name": "Tomás Rodríguez",
     "jersey": "9",
     "pos": "MF",
-    "age": 22,
-    "dob": "2004-01-05",
+    "age": 27,
+    "dob": "1999-03-09",
     "height_cm": 183,
     "weight_kg": 74
    },

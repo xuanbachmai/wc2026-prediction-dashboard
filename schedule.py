@@ -432,15 +432,15 @@ SCHEDULE: list[dict] = [
     {"match_no": 101, "date": "2026-07-14", "group": "SF", "matchday": None,
      "home": "France", "away": "Spain", "stadium": "AT&T Stadium",            "city": "Dallas",       "home_score": 0, "away_score": 2},
     {"match_no": 102, "date": "2026-07-15", "group": "SF", "matchday": None,
-     "home": "England", "away": "Argentina","stadium": "Mercedes-Benz Stadium",   "city": "Atlanta",      "home_score": 0, "away_score": 0},
+     "home": "England", "away": "Argentina","stadium": "Mercedes-Benz Stadium",   "city": "Atlanta",      "home_score": 1, "away_score": 2},
 
     # ══════════════════════ BRONZE FINAL ══════════════════════
     {"match_no": 103, "date": "2026-07-18", "group": "3rd", "matchday": None,
-     "home": "France","away": "TBD (L102)","stadium": "Hard Rock Stadium",       "city": "Miami",        "home_score": None, "away_score": None},
+     "home": "France","away": "England","stadium": "Hard Rock Stadium",       "city": "Miami",        "home_score": None, "away_score": None},
 
     # ══════════════════════ FINAL ══════════════════════
     {"match_no": 104, "date": "2026-07-19", "group": "Final", "matchday": None,
-     "home": "Spain","away": "TBD (W102)","stadium": "MetLife Stadium",         "city": "New York/New Jersey", "home_score": None, "away_score": None},
+     "home": "Spain","away": "Argentina","stadium": "MetLife Stadium",         "city": "New York/New Jersey", "home_score": None, "away_score": None},
 ]
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
