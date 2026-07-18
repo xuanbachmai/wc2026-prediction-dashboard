@@ -2885,5 +2885,83 @@
         "kind": "goal"
       }
     ]
+  },
+  "france vs england": {
+    "match_no": 103,
+    "date": "2026-07-18",
+    "home": "France",
+    "away": "England",
+    "goals": [
+      {
+        "scorer": "Declan Rice",
+        "assist": "",
+        "team": "England",
+        "clock": "3'",
+        "kind": "goal"
+      },
+      {
+        "scorer": "Ezri Konsa",
+        "assist": "Declan Rice",
+        "team": "England",
+        "clock": "18'",
+        "kind": "goal"
+      },
+      {
+        "scorer": "Bukayo Saka",
+        "assist": "Marcus Rashford",
+        "team": "England",
+        "clock": "37'",
+        "kind": "goal"
+      },
+      {
+        "scorer": "Bukayo Saka",
+        "assist": "Eberechi Eze",
+        "team": "England",
+        "clock": "45'+1'",
+        "kind": "goal"
+      },
+      {
+        "scorer": "Kylian Mbappé",
+        "assist": "Michael Olise",
+        "team": "France",
+        "clock": "48'",
+        "kind": "goal"
+      },
+      {
+        "scorer": "Bradley Barcola",
+        "assist": "Kylian Mbappé",
+        "team": "France",
+        "clock": "54'",
+        "kind": "goal"
+      },
+      {
+        "scorer": "Kylian Mbappé",
+        "assist": "Michael Olise",
+        "team": "France",
+        "clock": "66'",
+        "kind": "goal"
+      },
+      {
+        "scorer": "Bukayo Saka",
+        "assist": "",
+        "team": "England",
+        "clock": "87'",
+        "kind": "pen"
+      },
+      {
+        "scorer": "Ousmane Dembélé",
+        "assist": "Dayot Upamecano",
+        "team": "France",
+        "clock": "90'+6'",
+        "kind": "goal"
+      },
+      {
+        "scorer": "Jude Bellingham",
+        "assist": "",
+        "team": "England",
+        "clock": "90'+8'",
+        "kind": "goal"
+      }
+    ]
   }
 }

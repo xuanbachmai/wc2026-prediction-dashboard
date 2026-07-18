@@ -436,7 +436,7 @@ SCHEDULE: list[dict] = [
 
     # ══════════════════════ BRONZE FINAL ══════════════════════
     {"match_no": 103, "date": "2026-07-18", "group": "3rd", "matchday": None,
-     "home": "France","away": "England","stadium": "Hard Rock Stadium",       "city": "Miami",        "home_score": None, "away_score": None},
+     "home": "France","away": "England","stadium": "Hard Rock Stadium",       "city": "Miami",        "home_score": 4, "away_score": 6},
 
     # ══════════════════════ FINAL ══════════════════════
     {"match_no": 104, "date": "2026-07-19", "group": "Final", "matchday": None,

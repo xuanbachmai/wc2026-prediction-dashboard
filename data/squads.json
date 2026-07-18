@@ -1288,7 +1288,7 @@
     "name": "Nidal Celik",
     "jersey": "24",
     "pos": "DF",
-    "age": 19,
+    "age": 20,
     "dob": "2006-07-17",
     "height_cm": 193,
     "weight_kg": 83
@@ -2193,11 +2193,11 @@
    {
     "name": "Santiago Arias",
     "jersey": "4",
-    "pos": "MF",
-    "age": 31,
-    "dob": "1995-06-19",
-    "height_cm": 180,
-    "weight_kg": 78
+    "pos": "DF",
+    "age": 34,
+    "dob": "1992-01-13",
+    "height_cm": 178,
+    "weight_kg": 76
    },
    {
     "name": "Johan Mojica",
@@ -3546,11 +3546,11 @@
    {
     "name": "Kevin Rodríguez",
     "jersey": "11",
-    "pos": "FW",
-    "age": 26,
-    "dob": "2000-03-04",
-    "height_cm": 190,
-    "weight_kg": 83
+    "pos": "DF",
+    "age": 20,
+    "dob": "2005-10-29",
+    "height_cm": 168,
+    "weight_kg": 63
    },
    {
     "name": "Anthony Valencia",
@@ -4621,7 +4621,7 @@
     "name": "Gideon Mensah",
     "jersey": "14",
     "pos": "DF",
-    "age": 27,
+    "age": 28,
     "dob": "1998-07-18",
     "height_cm": 178,
     "weight_kg": 69
@@ -5218,7 +5218,7 @@
     "name": "Mehdi Taremi",
     "jersey": "9",
     "pos": "FW",
-    "age": 33,
+    "age": 34,
     "dob": "1992-07-18",
     "height_cm": 188,
     "weight_kg": 82
@@ -6381,11 +6381,11 @@
    {
     "name": "Brian Gutiérrez",
     "jersey": "26",
-    "pos": "MF",
-    "age": 23,
-    "dob": "2003-06-17",
-    "height_cm": 178,
-    "weight_kg": 72
+    "pos": "DF",
+    "age": 19,
+    "dob": "2007-01-21",
+    "height_cm": 185,
+    "weight_kg": 82
    },
    {
     "name": "Obed Vargas",
@@ -6772,7 +6772,7 @@
     "name": "Lutsharel Geertruida",
     "jersey": "2",
     "pos": "DF",
-    "age": 25,
+    "age": 26,
     "dob": "2000-07-18",
     "height_cm": 183,
     "weight_kg": 68
@@ -7029,7 +7029,7 @@
    {
     "name": "Callan Elliot",
     "jersey": "24",
-    "pos": "DF",
+    "pos": "MF",
     "age": 27,
     "dob": "1999-07-07",
     "height_cm": 178,
@@ -7225,7 +7225,7 @@
     "name": "Marcus Holmgren Pedersen",
     "jersey": "16",
     "pos": "DF",
-    "age": 25,
+    "age": 26,
     "dob": "2000-07-16",
     "height_cm": 183,
     "weight_kg": 76
@@ -8452,7 +8452,7 @@
     "name": "Saud Abdulhamid",
     "jersey": "12",
     "pos": "DF",
-    "age": 26,
+    "age": 27,
     "dob": "1999-07-18",
     "height_cm": 173,
     "weight_kg": 73
@@ -9883,7 +9883,7 @@
     "name": "Victor Lindelöf",
     "jersey": "3",
     "pos": "DF",
-    "age": 31,
+    "age": 32,
     "dob": "1994-07-17",
     "height_cm": 188,
     "weight_kg": 82
@@ -10408,7 +10408,7 @@
     "name": "Adem Arous",
     "jersey": "5",
     "pos": "DF",
-    "age": 21,
+    "age": 22,
     "dob": "2004-07-17",
     "height_cm": 188,
     "weight_kg": 79

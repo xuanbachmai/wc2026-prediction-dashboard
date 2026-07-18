@@ -2344,5 +2344,28 @@
     "away_yellows": 3,
     "source": "espn",
     "event_id": "760515"
+  },
+  "france vs england": {
+    "home": "France",
+    "away": "England",
+    "home_corners": 3,
+    "away_corners": 4,
+    "total": 7,
+    "home_poss": 45.9,
+    "away_poss": 54.1,
+    "home_shots": 19,
+    "away_shots": 19,
+    "home_shots_on": 9,
+    "away_shots_on": 11,
+    "home_crosses": 6,
+    "away_crosses": 12,
+    "home_passes": 444,
+    "away_passes": 517,
+    "home_fouls": 14,
+    "away_fouls": 8,
+    "home_yellows": 0,
+    "away_yellows": 0,
+    "source": "espn",
+    "event_id": "760516"
   }
 }
