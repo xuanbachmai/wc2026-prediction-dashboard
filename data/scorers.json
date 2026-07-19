@@ -2963,5 +2963,20 @@
         "kind": "goal"
       }
     ]
+  },
+  "spain vs argentina": {
+    "match_no": 104,
+    "date": "2026-07-19",
+    "home": "Spain",
+    "away": "Argentina",
+    "goals": [
+      {
+        "scorer": "Ferran Torres",
+        "assist": "Nico Williams",
+        "team": "Spain",
+        "clock": "106'",
+        "kind": "goal"
+      }
+    ]
   }
 }

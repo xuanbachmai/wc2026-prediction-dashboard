@@ -440,7 +440,7 @@ SCHEDULE: list[dict] = [
 
     # ══════════════════════ FINAL ══════════════════════
     {"match_no": 104, "date": "2026-07-19", "group": "Final", "matchday": None,
-     "home": "Spain","away": "Argentina","stadium": "MetLife Stadium",         "city": "New York/New Jersey", "home_score": None, "away_score": None},
+     "home": "Spain","away": "Argentina","stadium": "MetLife Stadium",         "city": "New York/New Jersey", "home_score": 1, "away_score": 0},
 ]
 
 # ── Helpers ───────────────────────────────────────────────────────────────────

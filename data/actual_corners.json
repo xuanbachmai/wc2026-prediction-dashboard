@@ -2367,5 +2367,28 @@
     "away_yellows": 0,
     "source": "espn",
     "event_id": "760516"
+  },
+  "spain vs argentina": {
+    "home": "Spain",
+    "away": "Argentina",
+    "home_corners": 9,
+    "away_corners": 4,
+    "total": 13,
+    "home_poss": 65.1,
+    "away_poss": 34.9,
+    "home_shots": 20,
+    "away_shots": 2,
+    "home_shots_on": 12,
+    "away_shots_on": 0,
+    "home_crosses": 27,
+    "away_crosses": 8,
+    "home_passes": 852,
+    "away_passes": 464,
+    "home_fouls": 21,
+    "away_fouls": 25,
+    "home_yellows": 0,
+    "away_yellows": 4,
+    "source": "espn",
+    "event_id": "760517"
   }
 }
