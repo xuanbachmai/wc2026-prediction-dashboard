@@ -2,6 +2,18 @@
 
 A self-learning prediction model with a live backend for the FIFA World Cup 2026.
 
+**🔴 Live demo:** https://xuanbachmai.github.io/wc2026-prediction-dashboard/
+
+## Result
+
+The tournament ran its full course through this model, updating live off ESPN after
+every match. Final tally across all **104 matches**:
+
+- **72.1% match-outcome accuracy** (75/104 correct) — scored honestly, every prediction
+  logged against the real result including the knockouts.
+- **Champion called correctly:** the model's projected winner was **Spain**, and Spain
+  beat Argentina 1–0 in the final.
+
 ## Architecture
 
 The backend (`serve.py`) runs everything automatically — nothing is manual:

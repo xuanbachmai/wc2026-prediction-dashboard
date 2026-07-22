@@ -18,7 +18,6 @@ from pathlib import Path
 from itertools import combinations
 
 import data, elo as elo_module, features as feat_module, model as model_module
-from simulate import _build_match_features, precompute_lambdas
 from team_intelligence import get_intel_features, TEAM_INTEL
 from config import WC_2026_GROUPS, FIFA_DISPLAY_NAMES
 from schedule import SCHEDULE, get_group_matches, is_played, result_str, KICKOFF_TIMES
@@ -27,9 +26,8 @@ from main import build_team_stats_lookup
 from news_fetcher import (
     fetch_all_upcoming_news, aggregate_sentiment,
 )
-from factor_engine import compute_factors, apply_factor_adjustments
+from factor_engine import compute_factors
 from match_context import get_match_context
-from team_intelligence import TEAM_INTEL
 
 # ── Actual corners loader ─────────────────────────────────────────────────────
 ACTUAL_CORNERS_PATH = Path("data/actual_corners.json")
@@ -1035,6 +1033,14 @@ def build_all_data(goals_model, outcome_model, elo, stats):
     if title_dist:
         champion = max(title_dist.items(), key=lambda x: x[1])[0]
 
+    # Tournament complete? (final played) → capture actual champion + runner-up
+    _final_match = next((m for m in SCHEDULE if m["match_no"] == 104), None)
+    tournament_complete = bool(_final_match and _final_match["home_score"] is not None)
+    actual_champion = actual_runner_up = None
+    if tournament_complete:
+        actual_champion = proj_winner.get(104)
+        actual_runner_up = proj_loser.get(104)
+
     # ── Add played KO matches to accuracy tracking ───────────────────────────
     ko_accuracy_rows = []
     for entry in actual_ko_schedule:
@@ -1520,6 +1526,9 @@ def build_all_data(goals_model, outcome_model, elo, stats):
         "win_probs":       win_probs,
         "champion":        champion,
         "projected_final": projected_final,
+        "tournament_complete": tournament_complete,
+        "actual_champion":     actual_champion,
+        "actual_runner_up":    actual_runner_up,
         "team_profiles":   team_profiles,
         "accuracy":        accuracy_summary,
         "method":          "deterministic",
@@ -2276,7 +2285,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">
       <div>
         <h1>⚽ World Cup 2026 — AI Prediction Engine
-          <span class="badge"><span class="live-dot"></span>LIVE</span>
+          <span class="badge" id="status-badge"><span class="live-dot"></span>LIVE</span>
         </h1>
         <div class="sub">A self-learning machine-learning model that predicts every match of the 2026 World Cup —
           and retrains itself after every final whistle. Random forest + Poisson xG, loop-learned ELO,
@@ -3022,17 +3031,35 @@ function renderOverview() {
       <div class="sub">${acc.direction_correct}/${acc.total_played} correct · <a href="#" onclick="showTabAcc();return false;" style="color:#60a5fa">See tracker →</a></div>
     </div>` : '';
 
+  const done = DATA.tournament_complete;
+  const champCorrect = done && DATA.actual_champion === champ;
+  const champCard = done
+    ? `<div class="ov-card" style="border-color:${champCorrect?'rgba(34,197,94,.4)':'var(--border)'}">
+         <div class="label">🏆 World Champions</div>
+         <div class="value" style="color:var(--gold)">${DATA.actual_champion}</div>
+         <div class="sub">${champCorrect
+            ? '<span style="color:var(--green)">✓ Model predicted this correctly</span>'
+            : `Model had predicted <b>${champ}</b>`}</div>
+       </div>`
+    : `<div class="ov-card">
+         <div class="label">Predicted Champion</div>
+         <div class="value" style="color:var(--gold)">${champ}</div>
+         <div class="sub">Actual bracket + model picks for unplayed rounds</div>
+       </div>`;
+  const finalCard = done
+    ? `<div class="ov-card">
+         <div class="label">The Final</div>
+         <div class="value" style="font-size:18px">${DATA.actual_champion} ${'&#8212;'} ${DATA.actual_runner_up}</div>
+         <div class="sub">Runner-up: ${DATA.actual_runner_up}</div>
+       </div>`
+    : `<div class="ov-card">
+         <div class="label">Predicted Final</div>
+         <div class="value" style="font-size:18px">${final2 ? (final2.home_team + ' vs ' + final2.away_team) : '—'}</div>
+         <div class="sub">Real results so far — model favourites onward</div>
+       </div>`;
   document.getElementById('overview-top').innerHTML = `
-    <div class="ov-card">
-      <div class="label">Predicted Champion</div>
-      <div class="value" style="color:var(--gold)">${champ}</div>
-      <div class="sub">Actual bracket + model picks for unplayed rounds</div>
-    </div>
-    <div class="ov-card">
-      <div class="label">Predicted Final</div>
-      <div class="value" style="font-size:18px">${final2 ? (final2.home_team + ' vs ' + final2.away_team) : '—'}</div>
-      <div class="sub">Real results so far — model favourites onward</div>
-    </div>
+    ${champCard}
+    ${finalCard}
     <div class="ov-card">
       <div class="label">Matches Predicted</div>
       <div class="value" style="color:var(--green)">104</div>
@@ -4300,20 +4327,37 @@ function renderHeroStats() {
   const sc = DATA.scorers || {};
   const koSched = DATA.actual_ko_schedule || [];
   const next = koSched.find(m => !m.played && !m.home_tbd && !m.away_tbd);
+  const done = DATA.tournament_complete;
   const stage = next ? ({R32:'Round of 32',R16:'Round of 16',QF:'Quarter-Finals',SF:'Semi-Finals','3rd':'3rd Place',Final:'The Final'}[next.round] || next.round) : 'Tournament complete';
+  const champCorrect = done && DATA.actual_champion === DATA.champion;
   const chips = [
     { val: `${acc.direction_pct || 0}%`, lbl: `Model accuracy · ${acc.direction_correct||0}/${played}`,
       col: (acc.direction_pct||0) >= 70 ? 'var(--green)' : 'var(--yellow)' },
     { val: `${played} / 104`, lbl: 'Matches tracked', col: 'var(--accent)' },
     { val: `${sc.total_goals || '—'}`, lbl: 'Goals recorded', col: 'var(--gold)' },
-    { val: stage, lbl: next ? `Next: ${next.home} vs ${next.away}` : 'Awaiting champion', col: '#fff' },
-    { val: DATA.champion || '—', lbl: 'Projected champion', col: 'var(--gold)' },
+    done
+      ? { val: `🏆 ${DATA.actual_champion}`, lbl: 'World champions', col: 'var(--gold)' }
+      : { val: stage, lbl: next ? `Next: ${next.home} vs ${next.away}` : 'Awaiting champion', col: '#fff' },
+    done
+      ? { val: champCorrect ? '✓ Correct' : `${DATA.champion}`,
+          lbl: champCorrect ? 'Model called the champion' : 'Model pick (missed)',
+          col: champCorrect ? 'var(--green)' : 'var(--red)' }
+      : { val: DATA.champion || '—', lbl: 'Projected champion', col: 'var(--gold)' },
   ];
   el.innerHTML = chips.map(c => `
     <div class="hero-chip">
       <div class="hc-val" style="color:${c.col}">${c.val}</div>
       <div class="hc-lbl">${c.lbl}</div>
     </div>`).join('');
+
+  // Flip the header badge to a completed state once the final is played
+  const badge = document.getElementById('status-badge');
+  if (badge && done) {
+    badge.innerHTML = '🏆 COMPLETE';
+    badge.style.background = 'rgba(245,158,11,.16)';
+    badge.style.borderColor = 'rgba(245,158,11,.5)';
+    badge.style.color = '#fbbf24';
+  }
 }
 window.openAbout  = () => document.getElementById('about-overlay').classList.add('open');
 window.closeAbout = () => document.getElementById('about-overlay').classList.remove('open');
@@ -4400,7 +4444,7 @@ def _load_cached_pipeline():
     if not _MODEL_CACHE.exists():
         return None
     try:
-        import pickle, hashlib
+        import pickle
         # Cache is valid as long as schedule.py and results.csv haven't changed
         sched_mtime = Path("schedule.py").stat().st_mtime
         csv_mtime   = Path("data/results.csv").stat().st_mtime if Path("data/results.csv").exists() else 0
